@@ -21,7 +21,7 @@ router.get('/last', async function(req, res, next) {
       .where('index', getBlock[0].index)
       .limit(1)
 
-      getBlock.push({consensus: getConsensus})
+      getBlock.push({consensus: getConsensus[0]})
 
       const getTranfers = await db('transactions')
       .select('id')
