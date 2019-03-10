@@ -23,16 +23,17 @@ router.get('/block/:index', async function(req, res, next) {
 })
 
 // Get consensus by target range
-router.get('/target/:start/:end', async function(req, res, next) {
+router.get('/target/:a/:end', async function(req, res, next) {
     try {
     
         const getConsensus = await db('consensus')
         .select()
-        .whereBetween('target', [req.params.start, start.params.end])
+        .whereBetween('target', [req.params.start, req.params.end])
   
         res.status(200).json(getConsensus)
     
     } catch (err) {
+      console.log(err)
       res.status(400).json(null)
     }
   })
