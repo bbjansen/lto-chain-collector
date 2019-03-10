@@ -38,18 +38,20 @@ async function collectAll() {
     lastIndex = lastIndex.data.height
 
     if(blockIndex.length >= 1) {
-        blockIndex = blockIndex[0].index + 1
+        blockIndex = blockIndex[0].index
     } else {
         blockIndex = 1
     }
 
-    // Check we are behind, if not halt!
-    if(blockIndex >= lastIndex) {
-        throw('[Block] reached top')
-    }
 
     //Calculate how many blocks we are behind
     const heightDiff = lastIndex - blockIndex
+
+
+    // Check we are behind, if not halt!
+    if(blockIndex >= lastIndex || heightDiff === 0) {
+        throw('[Block] reached top')
+    }
 
     // Calculate # of blocks to scan
     if(heightDiff >= 99) {
@@ -75,7 +77,7 @@ async function collectAll() {
     const endIndex = (blockIndex + blockCount)
 
     // Get Blocks
-    const blocks = await axios.get('https://' + process.env.NODE_IP + '/blocks/seq/' + blockIndex + '/' + endIndex)
+    const blocks = await axios.get('https://' + process.env.NODE_IP + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex)
 
     // Process blocks
     blocks.data.map(async (block) => {
