@@ -43,7 +43,7 @@ router.get('/all/day', async function(req, res, next) {
   try {
 
       const range = [moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')]
-      console.log(range)
+
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
       .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
@@ -179,7 +179,6 @@ router.get('/unconfirmed/all', async function(req, res, next) {
       res.json(generators)
 
   } catch (err) {
-    console.log(err)
     res.status(400).json(null)
   }
 })
