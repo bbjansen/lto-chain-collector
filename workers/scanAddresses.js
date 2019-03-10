@@ -3,14 +3,13 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-require('dotenv').config('../')
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
 
 setInterval(function() { 
   scanAddress()
-}, 5000)
+}, process.env.INTERVAL_SCAN_ADDRESS)
 
 
 // Takes all known addresses from the DB and checks for the latest

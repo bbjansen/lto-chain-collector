@@ -43,6 +43,13 @@ app.use('/lease', require('./routes/lease'))
 app.use('/generator', require('./routes/generator'))
 app.use('/address', require('./routes/address'))
 
+// Workers
+require('./workers/collectAll')
+require('./workers/confirmBlocks')
+require('./workers/confirmTx')
+require('./workers/collectAddresses')
+require('./workers/scanAddresses.js')
+
 
 // error handler
 app.use(function onError (err, req, res, next) {

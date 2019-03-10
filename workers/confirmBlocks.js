@@ -3,14 +3,13 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-require('dotenv').config('../')
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
 
 setInterval(function() { 
   confirmBlocks()
-}, 5000)
+}, process.env.INTERVAL_CONFIRM_BLOCKS)
 
 // Takes all unconfirmed blocks from the DB and checks if 90 minutes has
 // passed (lto network orphan interval). If 90 mintes has passed, it looks

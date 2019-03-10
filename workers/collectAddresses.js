@@ -3,13 +3,12 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-require('dotenv').config('../')
 const db = require('../utils/utils').knex
 const axios = require('axios')
 
 setInterval(function() { 
   collectAddress()
-}, 5000)
+}, INTERVAL_COLLECT_ADDRESS)
 
 // Takes all recipient and sender addresses in recorded transactions
 // and stores them in the addresses table so we can track it in

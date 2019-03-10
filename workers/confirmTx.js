@@ -3,14 +3,13 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-require('dotenv').config('../')
 const db = require('../utils/utils').knex
 const axios = require('axios')
 
 
 setInterval(function() { 
   confirmTx()
-}, 5000)
+}, process.env.INTERVAL_CONFIRM_TX)
 
 
 // Takes all unconfirmed transactions from the DB and looks them up

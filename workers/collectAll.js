@@ -3,7 +3,6 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-require('dotenv').config('../')
 
 const db = require('../utils/utils').knex
 const moment = require('moment')
@@ -12,7 +11,7 @@ const axios = require('axios')
 
 setInterval(function() { 
     collectAll()
-}, 5000)
+}, process.env.INTERVAL_COLLECT_ALL)
 
 
 // Grabs the current node height and checks if we are behind.
