@@ -24,7 +24,7 @@ async function confirmTx() {
     const transactions = await db('transactions')
     .leftJoin('blocks', 'transactions.block', 'blocks.index')
     .select('transactions.id')
-    .where('blocks.confirmed', true)
+    //.where('blocks.confirmed', true)
     .where('transactions.confirmed', false)
     .limit(100)
 
