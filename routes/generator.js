@@ -59,7 +59,7 @@ router.get('/all/day', async function(req, res, next) {
       }, 0)
 
       generators.forEach(generator => {
-        generator.share = (generator.blocks/total).toFixed(2) || 0
+        generator.share = ((generator.blocks/total * 100)).toFixed(5) || 0
       })
 
       res.json(generators)
@@ -88,7 +88,7 @@ router.get('/all/week', async function(req, res, next) {
       }, 0)
 
       generators.forEach(generator => {
-        generator.share = (generator.blocks/total).toFixed(5) || 0
+        generator.share = ((generator.blocks/total * 100)).toFixed(5) || 0
       })
 
       res.json(generators)
@@ -118,7 +118,7 @@ router.get('/all/month', async function(req, res, next) {
       }, 0)
 
       generators.forEach(generator => {
-        generator.share = (generator.blocks/total).toFixed(5) || 0
+        generator.share = ((generator.blocks/total * 100)).toFixed(5) || 0
       })
 
       res.json(generators)
