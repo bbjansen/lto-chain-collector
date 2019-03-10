@@ -24,11 +24,11 @@ router.get('/last', async function(req, res, next) {
       getBlock.push({consensus: getConsensus[0]})
 
       const getTranfers = await db('transactions')
-      .select('id')
+      .select('type', 'id')
       .where('block', getBlock[0].index)
-
-      getTranfers.push({transactions: getTranfers})
-
+  
+      getBlock.push({transactions: getTranfers})
+  
       res.status(200).json(getBlock)
 
   } catch (err) {
