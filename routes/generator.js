@@ -42,13 +42,15 @@ router.get('/all', async function(req, res, next) {
 router.get('/all/day', async function(req, res, next) {
   try {
 
+      const range = [moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')]
+      console.log(range)
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
       .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
-      .whereBetween('blocks.datetime', [moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+      .whereBetween('blocks.datetime', range)
       .groupBy('blocks.generator')
       .orderBy('blocks', 'desc')
 
