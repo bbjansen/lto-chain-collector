@@ -8,7 +8,7 @@ const axios = require('axios')
 
 setInterval(function() { 
   collectAddress()
-}, INTERVAL_COLLECT_ADDRESS)
+}, process.env.INTERVAL_COLLECT_ADDRESS)
 
 // Takes all recipient and sender addresses in recorded transactions
 // and stores them in the addresses table so we can track it in
