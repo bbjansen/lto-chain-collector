@@ -18,7 +18,7 @@ router.get('/:proof', async function(req, res, next) {
       res.json(getProof)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -33,7 +33,7 @@ router.get('/transaction/:id', async function(req, res, next) {
       res.status(200).json(getProof)
   
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

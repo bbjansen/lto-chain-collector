@@ -19,7 +19,7 @@ router.get('/:address', async function(req, res, next) {
       res.json(getAddress[0])
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

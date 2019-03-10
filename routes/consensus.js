@@ -18,7 +18,7 @@ router.get('/block/:index', async function(req, res, next) {
         res.status(200).json(getConsensus)
 
     } catch (err) {
-        res.status(400).json(null)
+        next(err)
     }
 })
 
@@ -34,7 +34,7 @@ router.get('/target/:start/:end', async function(req, res, next) {
     
     } catch (err) {
       console.log(err)
-      res.status(400).json(null)
+      next(err)
     }
   })
 
@@ -49,7 +49,7 @@ router.get('/signature/:signature', async function(req, res, next) {
       res.status(200).json(getConsensus)
   
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

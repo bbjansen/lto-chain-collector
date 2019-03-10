@@ -55,7 +55,7 @@ require('./workers/scanAddresses.js')
 app.use(function onError (err, req, res, next) {
   res.locals.error = process.env.DEBUG == true ? err : {}
   res.statusCode = err.status || 500
-  res.json(new Error('error'))
+  res.status(400).json(err)
   console.log(err)
 })
 

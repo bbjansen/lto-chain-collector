@@ -33,7 +33,7 @@ router.get('/last', async function(req, res, next) {
 
   } catch (err) {
     console.log(err)
-    res.status(400).json(null)
+    next(err)
 }
 })
 
@@ -50,7 +50,7 @@ router.get('/:start/:end', async function(req, res, next) {
     res.status(200).json(getBlocks)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -68,7 +68,7 @@ router.get('/address/:address', async function(req, res, next) {
       res.status(200).json(getBlocks)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -86,7 +86,7 @@ router.get('/unconfirmed', async function(req, res, next) {
 
   } catch (err) {
     console.log(err)
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -103,7 +103,7 @@ router.get('/orphans', async function(req, res, next) {
       res.status(200).json(getBlocks)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -132,7 +132,7 @@ router.get('/:index', async function(req, res, next) {
     res.status(200).json(getBlock)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

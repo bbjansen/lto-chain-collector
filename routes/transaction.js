@@ -18,7 +18,7 @@ router.get('/block/:index', async function(req, res, next) {
       res.status(200).json(getTx)
   
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -48,7 +48,7 @@ router.get('/sender/all', async function(req, res, next) {
   
   } catch (err) {
     console.log(err)
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -79,7 +79,7 @@ router.get('/recipient/all', async function(req, res, next) {
   
   } catch (err) {
     console.log(err)
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -101,7 +101,7 @@ router.get('/address/:address', async function(req, res, next) {
       res.status(200).json(tx)
   
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -116,7 +116,7 @@ router.get('/unconfirmed', async function(req, res, next) {
       res.status(200).json(getTx)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

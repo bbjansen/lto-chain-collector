@@ -19,7 +19,7 @@ router.get('/', async function(req, res, next) {
       res.status(200).json(getLeases)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -34,7 +34,7 @@ router.get('/transaction/:id', async function(req, res, next) {
       res.status(200).json(getAnchor)
   
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

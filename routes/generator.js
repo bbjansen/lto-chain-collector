@@ -33,7 +33,7 @@ router.get('/all', async function(req, res, next) {
 
   } catch (err) {
     console.log(err)
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -64,7 +64,7 @@ router.get('/all/day', async function(req, res, next) {
 
       res.json(generators)
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -93,7 +93,7 @@ router.get('/all/week', async function(req, res, next) {
 
       res.json(generators)
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -123,7 +123,7 @@ router.get('/all/month', async function(req, res, next) {
 
       res.json(generators)
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -152,7 +152,7 @@ router.get('/all/year', async function(req, res, next) {
 
       res.json(generators)
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
@@ -179,7 +179,7 @@ router.get('/unconfirmed/all', async function(req, res, next) {
       res.json(generators)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 

@@ -18,7 +18,7 @@ router.get('/:index', async function(req, res, next) {
       res.json(getFeatures)
 
   } catch (err) {
-    res.status(400).json(null)
+    next(err)
   }
 })
 
