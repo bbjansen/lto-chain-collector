@@ -1,0 +1,40 @@
+{
+  "name": "lto-chain-cache",
+  "version": "0.0.1",
+  "description": "Caches LTO Network into a SQL DB.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "standard",
+    "format": "node ./scripts/format.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fexra/lto-chain-cache.git"
+  },
+  "keywords": [
+    "lto",
+    "cache",
+    "sql",
+    "cryptocurrency"
+  ],
+  "author": "fexra <fexra@protonmail.com>",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fexra/lto-chain-cache/issues"
+  },
+  "homepage": "https://github.com/fexra/lto-chain-cache#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "helmet": "^3.15.1",
+    "knex": "^0.16.3",
+    "moment": "^2.24.0",
+    "morgan": "^1.9.1",
+    "mysql": "^2.16.0"
+  }
+}
