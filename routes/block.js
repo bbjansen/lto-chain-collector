@@ -12,7 +12,7 @@ router.get('/last', async function(req, res, next) {
   try {
 
       const getBlock = await db('blocks')
-      .select()
+      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
       .orderBy('index', 'desc')
       .limit(1)
 
@@ -112,7 +112,7 @@ router.get('/:index', async function(req, res, next) {
   try {
 
     const getBlock = await db('blocks')
-    .select()
+    .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
     .orderBy('index', 'desc')
     .limit(1)
 
