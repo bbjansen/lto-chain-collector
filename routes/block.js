@@ -6,6 +6,8 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../utils/utils').knex
+const moment = require('moment')
+
 
 // Block last
 router.get('/last', async function(req, res, next) {
@@ -20,8 +22,6 @@ router.get('/last', async function(req, res, next) {
     .options({
       nestTables: true
     })
-
-  
 
     res.status(200).json(getBlock[0])
 
@@ -121,7 +121,6 @@ router.get('/unconfirmed', async function(req, res, next) {
     next(err)
   }
 })
-
 
 // Block at index
 router.get('/:index', async function(req, res, next) {

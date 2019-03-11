@@ -17,10 +17,11 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 - `/lease/`
 - `/generator/`
 - `/address/`
+- `/stats/`
 
 ## .env example
 
-``
+```
 APP_PORT=8012
 
 DB_HOST=localhost
@@ -33,4 +34,4 @@ NODE_IP=192.168.1.1
 
 ATOMIC=100000000
 
-``
+```
