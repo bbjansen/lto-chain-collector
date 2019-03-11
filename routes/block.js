@@ -12,7 +12,7 @@ router.get('/last', async function(req, res, next) {
   try {
 
     const getBlock = await db('blocks')
-    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .leftJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .orderBy('blocks.index', 'desc')
@@ -36,7 +36,7 @@ router.get('/last/:index', async function(req, res, next) {
   try {
 
       const getBlocks = await db('blocks')
-      .rightJoin('consensus', 'blocks.index', 'consensus.index')
+      .leftJoin('consensus', 'blocks.index', 'consensus.index')
       .rightJoin('transactions', 'blocks.index', 'transactions.block')
       .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
       .orderBy('blocks.index', 'desc')
@@ -45,7 +45,7 @@ router.get('/last/:index', async function(req, res, next) {
         nestTables: true
       })
 
-      res.status(200).json(getBlocks[0])
+      res.status(200).json(getBlocks)
 
   } catch (err) {
     console.log(err)
@@ -59,7 +59,7 @@ router.get('/:start/:end', async function(req, res, next) {
   try {
 
     const getBlocks = await db('blocks')
-    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .leftJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .whereBetween('blocks.index', [req.params.start, req.params.end])
@@ -82,7 +82,7 @@ router.get('/address/:address', async function(req, res, next) {
   try {
 
     const getBlock = await db('blocks')
-    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .leftJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .where('generator', req.params.address)
@@ -103,7 +103,7 @@ router.get('/address/:address', async function(req, res, next) {
 router.get('/unconfirmed', async function(req, res, next) {
   try {
     const getBlocks = await db('blocks')
-    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .leftJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .whereRaw('blocks.datetime > NOW() - INTERVAL 90 MINUTE')
@@ -128,7 +128,7 @@ router.get('/:index', async function(req, res, next) {
   try {
 
     const getBlock = await db('blocks')
-    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .leftJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .where('blocks.index', req.params.index)
