@@ -41,7 +41,7 @@ db.schema.hasTable('consensus').then(function (exists) {
 db.schema.hasTable('features').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('features', function (table) {
-      table.increments('id')
+      table.increments('id').primary().notNullable()
       table.integer('index').notNullable()
       table.integer('feature').notNullable()
     })
@@ -53,7 +53,7 @@ db.schema.hasTable('features').then(function (exists) {
 db.schema.hasTable('transactions').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('transactions', function (table) {
-      table.string('id').unique().notNullable()
+      table.string('id').unique().primary().notNullable()
       table.integer('type').notNullable()
       table.integer('block').notNullable()
       table.string('recipient')
@@ -77,7 +77,7 @@ db.schema.hasTable('transactions').then(function (exists) {
 db.schema.hasTable('transfers').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('transfers', function (table) {
-      table.increments('id')
+      table.increments('id').primary().notNullable()
       table.string('tid').notNullable()
       table.string('recipient').notNullable()
       table.decimal('amount', [15, 9]).notNullable()
@@ -90,7 +90,7 @@ db.schema.hasTable('transfers').then(function (exists) {
 db.schema.hasTable('proofs').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('proofs', function (table) {
-      table.increments('id')
+      table.increments('id').primary().notNullable()
       table.string('tid').notNullable()
       table.string('proof').notNullable()
     })
@@ -102,7 +102,7 @@ db.schema.hasTable('proofs').then(function (exists) {
 db.schema.hasTable('anchors').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('anchors', function (table) {
-      table.increments('id')
+      table.increments('id').primary().notNullable()
       table.string('tid').notNullable()
       table.string('anchor').notNullable()
     })
@@ -114,7 +114,7 @@ db.schema.hasTable('anchors').then(function (exists) {
 db.schema.hasTable('addresses').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('addresses', function (table) {
-      table.string('address').unique().notNullable()
+      table.string('address').unique().primary().notNullable()
       table.string('label')
       table.string('url')
       table.decimal('regular', [15, 9]).notNullable()

@@ -176,7 +176,7 @@ router.get('/:id', async function(req, res, next) {
 
       }
 
-      res.status(200).json(getTx) 
+      res.status(200).json(getTx[0]) 
 
   } catch (err) {
     console.log(err)

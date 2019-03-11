@@ -45,10 +45,10 @@ app.use('/address', require('./routes/address'))
 
 // Workers
 require('./workers/collectAll')
-require('./workers/confirmBlocks')
-require('./workers/confirmTx')
-require('./workers/collectAddresses')
-require('./workers/scanAddresses.js')
+//require('./workers/confirmBlocks')
+//require('./workers/confirmTx')
+//require('./workers/collectAddresses')
+//require('./workers/scanAddresses.js')
 
 
 // error handler

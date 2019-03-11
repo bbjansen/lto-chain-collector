@@ -14,12 +14,14 @@ router.get('/last', async function(req, res, next) {
     const getBlock = await db('blocks')
     .rightJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
-    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .orderBy('blocks.index', 'desc')
     .limit(1)
     .options({
       nestTables: true
     })
+
+  
 
     res.status(200).json(getBlock[0])
 
@@ -43,7 +45,7 @@ router.get('/last/:index', async function(req, res, next) {
         nestTables: true
       })
 
-      res.status(200).json(getBlocks)
+      res.status(200).json(getBlocks[0])
 
   } catch (err) {
     console.log(err)
@@ -60,7 +62,7 @@ router.get('/:start/:end', async function(req, res, next) {
     .rightJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
-    .whereBetween('index', [req.params.start, req.params.end])
+    .whereBetween('blocks.index', [req.params.start, req.params.end])
     .orderBy('blocks.index', 'desc')
     .limit(1000)
     .options({
@@ -85,12 +87,11 @@ router.get('/address/:address', async function(req, res, next) {
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .where('generator', req.params.address)
     .orderBy('blocks.index', 'desc')
-    .limit(1)
     .options({
       nestTables: true
     })
 
-    res.status(200).json(getBlock[0])
+    res.status(200).json(getBlock)
 
   } catch (err) {
     next(err)
@@ -105,8 +106,8 @@ router.get('/unconfirmed', async function(req, res, next) {
     .rightJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
-    .whereRaw('datetime > NOW() - INTERVAL 90 MINUTE')
-    .where('confirmed', false)
+    .whereRaw('blocks.datetime > NOW() - INTERVAL 90 MINUTE')
+    .where('blocks.confirmed', false)
     .orderBy('blocks.index', 'desc')
     .limit(1000)
     .options({
@@ -130,7 +131,7 @@ router.get('/:index', async function(req, res, next) {
     .rightJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
-    .where('generator', req.params.index)
+    .where('blocks.index', req.params.index)
     .orderBy('blocks.index', 'desc')
     .limit(1)
     .options({
