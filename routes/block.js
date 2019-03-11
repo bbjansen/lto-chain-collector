@@ -13,7 +13,7 @@ router.get('/last', async function(req, res, next) {
 
     const getBlock = await db('blocks')
     .leftJoin('consensus', 'blocks.index', 'consensus.index')
-    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    //.innerJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .orderBy('blocks.index', 'desc')
     .limit(1)
@@ -37,8 +37,8 @@ router.get('/last/:index', async function(req, res, next) {
 
       const getBlocks = await db('blocks')
       .leftJoin('consensus', 'blocks.index', 'consensus.index')
-      .rightJoin('transactions', 'blocks.index', 'transactions.block')
-      .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+      //.innerJoin('transactions', 'blocks.index', 'transactions.block')
+      .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
       .orderBy('blocks.index', 'desc')
       .limit(req.params.index)
       .options({
@@ -60,8 +60,8 @@ router.get('/:start/:end', async function(req, res, next) {
 
     const getBlocks = await db('blocks')
     .leftJoin('consensus', 'blocks.index', 'consensus.index')
-    .rightJoin('transactions', 'blocks.index', 'transactions.block')
-    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    //.innerJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .whereBetween('blocks.index', [req.params.start, req.params.end])
     .orderBy('blocks.index', 'desc')
     .limit(1000)
@@ -83,8 +83,8 @@ router.get('/address/:address', async function(req, res, next) {
 
     const getBlock = await db('blocks')
     .leftJoin('consensus', 'blocks.index', 'consensus.index')
-    .rightJoin('transactions', 'blocks.index', 'transactions.block')
-    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    //.innerJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .where('generator', req.params.address)
     .orderBy('blocks.index', 'desc')
     .options({
@@ -104,8 +104,8 @@ router.get('/unconfirmed', async function(req, res, next) {
   try {
     const getBlocks = await db('blocks')
     .leftJoin('consensus', 'blocks.index', 'consensus.index')
-    .rightJoin('transactions', 'blocks.index', 'transactions.block')
-    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    //.innerJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .whereRaw('blocks.datetime > NOW() - INTERVAL 90 MINUTE')
     .where('blocks.confirmed', false)
     .orderBy('blocks.index', 'desc')
@@ -129,8 +129,8 @@ router.get('/:index', async function(req, res, next) {
 
     const getBlock = await db('blocks')
     .leftJoin('consensus', 'blocks.index', 'consensus.index')
-    .rightJoin('transactions', 'blocks.index', 'transactions.block')
-    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    //.innerJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target'))
     .where('blocks.index', req.params.index)
     .orderBy('blocks.index', 'desc')
     .limit(1)
