@@ -130,7 +130,7 @@ router.get('/:index', async function(req, res, next) {
     .rightJoin('consensus', 'blocks.index', 'consensus.index')
     .rightJoin('transactions', 'blocks.index', 'transactions.block')
     .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
-    .where('generator', req.params.address)
+    .where('generator', req.params.index)
     .orderBy('blocks.index', 'desc')
     .limit(1)
     .options({
