@@ -41,7 +41,7 @@ db.schema.hasTable('consensus').then(function (exists) {
 db.schema.hasTable('features').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('features', function (table) {
-      table.increments('id').primary().notNullable()
+      table.increments('id').primary()
       table.integer('index').notNullable()
       table.integer('feature').notNullable()
     })
@@ -77,7 +77,7 @@ db.schema.hasTable('transactions').then(function (exists) {
 db.schema.hasTable('transfers').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('transfers', function (table) {
-      table.increments('id').primary().notNullable()
+      table.increments('id').primary()
       table.string('tid').notNullable()
       table.string('recipient').notNullable()
       table.decimal('amount', [15, 9]).notNullable()
@@ -90,7 +90,7 @@ db.schema.hasTable('transfers').then(function (exists) {
 db.schema.hasTable('proofs').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('proofs', function (table) {
-      table.increments('id').primary().notNullable()
+      table.increments('id').primary()
       table.string('tid').notNullable()
       table.string('proof').notNullable()
     })
