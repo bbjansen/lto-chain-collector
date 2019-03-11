@@ -11,25 +11,39 @@ const db = require('../utils/utils').knex
 router.get('/last', async function(req, res, next) {
   try {
 
-      const getBlock = await db('blocks')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
-      .orderBy('index', 'desc')
-      .limit(1)
+    const getBlock = await db('blocks')
+    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    .orderBy('blocks.index', 'desc')
+    .limit(1)
+    .options({
+      nestTables: true
+    })
 
-      const getConsensus = await db('consensus')
-      .select('target', 'signature')
-      .where('index', getBlock[0].index)
-      .limit(1)
+    res.status(200).json(getBlock[0])
 
-      getBlock.push({consensus: getConsensus[0]})
+  } catch (err) {
+    console.log(err)
+    next(err)
+}
+})
 
-      const getTranfers = await db('transactions')
-      .select('type', 'id')
-      .where('block', getBlock[0].index)
-  
-      getBlock.push({transactions: getTranfers})
-  
-      res.status(200).json(getBlock)
+
+router.get('/last/:index', async function(req, res, next) {
+  try {
+
+      const getBlocks = await db('blocks')
+      .rightJoin('consensus', 'blocks.index', 'consensus.index')
+      .rightJoin('transactions', 'blocks.index', 'transactions.block')
+      .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+      .orderBy('blocks.index', 'desc')
+      .limit(req.params.index)
+      .options({
+        nestTables: true
+      })
+
+      res.status(200).json(getBlocks)
 
   } catch (err) {
     console.log(err)
@@ -43,9 +57,15 @@ router.get('/:start/:end', async function(req, res, next) {
   try {
 
     const getBlocks = await db('blocks')
-    .select()
+    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
     .whereBetween('index', [req.params.start, req.params.end])
+    .orderBy('blocks.index', 'desc')
     .limit(1000)
+    .options({
+      nestTables: true
+    })
 
     res.status(200).json(getBlocks)
 
@@ -59,13 +79,18 @@ router.get('/:start/:end', async function(req, res, next) {
 router.get('/address/:address', async function(req, res, next) {
   try {
 
-      const getBlocks = await db('blocks')
-      .select()
-      .where('generator', req.params.address)
-      .orderBy('index', 'desc')
-      .limit(1)
+    const getBlock = await db('blocks')
+    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    .where('generator', req.params.address)
+    .orderBy('blocks.index', 'desc')
+    .limit(1)
+    .options({
+      nestTables: true
+    })
 
-      res.status(200).json(getBlocks)
+    res.status(200).json(getBlock[0])
 
   } catch (err) {
     next(err)
@@ -76,13 +101,19 @@ router.get('/address/:address', async function(req, res, next) {
 // Get unconfirmed blocks
 router.get('/unconfirmed', async function(req, res, next) {
   try {
-      const getBlocks = await db('blocks')
-      .select()
-      .whereRaw('datetime > NOW() - INTERVAL 90 MINUTE')
-      .where('confirmed', false)
-      .orderBy('index', 'desc')
+    const getBlocks = await db('blocks')
+    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    .whereRaw('datetime > NOW() - INTERVAL 90 MINUTE')
+    .where('confirmed', false)
+    .orderBy('blocks.index', 'desc')
+    .limit(1000)
+    .options({
+      nestTables: true
+    })
 
-      res.status(200).json(getBlocks)
+    res.status(200).json(getBlocks)
 
   } catch (err) {
     console.log(err)
@@ -91,45 +122,22 @@ router.get('/unconfirmed', async function(req, res, next) {
 })
 
 
-// Get orphaned blocks
-router.get('/orphans', async function(req, res, next) {
-  try {
-      const getBlocks = await db('blocks')
-      .select()
-      .whereRaw('datetime < NOW() - INTERVAL 90 MINUTE')
-      .where('confirmed', false)
-      .orderBy('index', 'desc')
-
-      res.status(200).json(getBlocks)
-
-  } catch (err) {
-    next(err)
-  }
-})
-
 // Block at index
 router.get('/:index', async function(req, res, next) {
   try {
 
     const getBlock = await db('blocks')
-    .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
-    .orderBy('index', 'desc')
+    .rightJoin('consensus', 'blocks.index', 'consensus.index')
+    .rightJoin('transactions', 'blocks.index', 'transactions.block')
+    .select(db.raw('blocks.index, blocks.reference, blocks.generator, blocks.signature, blocks.size, blocks.count, blocks.fee, blocks.version, blocks.timestamp, blocks.confirmed, consensus.signature, consensus.target, transactions.id, transactions.type'))
+    .where('generator', req.params.address)
+    .orderBy('blocks.index', 'desc')
     .limit(1)
+    .options({
+      nestTables: true
+    })
 
-    const getConsensus = await db('consensus')
-    .select('target', 'signature')
-    .where('index', getBlock[0].index)
-    .limit(1)
-
-    getBlock.push({consensus: getConsensus[0]})
-
-    const getTranfers = await db('transactions')
-    .select('type', 'id')
-    .where('block', getBlock[0].index)
-
-    getBlock.push({transactions: getTranfers})
-
-    res.status(200).json(getBlock)
+    res.status(200).json(getBlock[0])
 
   } catch (err) {
     next(err)

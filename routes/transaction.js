@@ -12,7 +12,7 @@ router.get('/block/:index', async function(req, res, next) {
   try {
   
       const getTx = await db('transactions')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
+      .select()
       .where('block', req.params.index)
 
       res.status(200).json(getTx)
@@ -89,11 +89,11 @@ router.get('/address/:address', async function(req, res, next) {
   try {
   
       const getSender = await db('transactions')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
+      .select()
       .where('sender', req.params.address)
 
       const getRecipient = await db('transactions')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
+      .select()
       .where('recipient', req.params.address)
 
       const tx = getSender.concat(getRecipient)
@@ -109,7 +109,7 @@ router.get('/address/:address', async function(req, res, next) {
 router.get('/unconfirmed', async function(req, res, next) {
   try {
       const getTx = await db('transactions')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
+      .select()
       .where('confirmed', false)
       .orderBy('datetime', 'desc')
 
@@ -126,7 +126,7 @@ router.get('/:id', async function(req, res, next) {
   try {
 
       const getTx = await db('transactions')
-      .select(db.raw('*, date_format(datetime,"%Y-%m-%d %h:%i:%s") as datetime'))
+      .select()
       .where('id', req.params.id)
 
       // Mass Tx
