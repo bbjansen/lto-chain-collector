@@ -114,18 +114,23 @@ router.get('/transaction/:period', async function(req, res, next) {
   try {
 
     let range
+    let scale
 
     if(req.params.period === 'day') {
-      range = 'days'
+      range = 'day'
+      scale = '%Y-%m-%d %H'
     }
     else if(req.params.period === 'week') {
       range = 'week'
+      scale = '%Y-%m-%d'
     }
     else if(req.params.period === 'month') {
       range = 'month'
+      scale = '%Y-%m-%d'
     }
     else if(req.params.period === 'year') {
       range = 'year'
+      scale = '%Y-%m'
     }
 
     const countTxns = await db('transactions')
@@ -160,6 +165,14 @@ router.get('/transaction/:period', async function(req, res, next) {
     .whereBetween('transactions.datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
     //.groupBy('transfers.tid')
 
+
+    const getData = await db('transactions')
+    .select(db.raw('date_format(datetime, "' + scale + '") as period, type'))
+    .count('* as count')
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+    .groupByRaw('date_format(datetime, "' + scale + '")')
+    .groupBy('type')
+
     const stats = {
       stats: {
         standard: countTxns[0].count,
@@ -169,6 +182,7 @@ router.get('/transaction/:period', async function(req, res, next) {
         startLease: countStartLease[0].count,
         cancelLease: countCancelLease[0].count,
       },
+      data: getData,
       timestamp: moment().format('YYYY-MM-DD HH:mm:ss Z')
     }
     
