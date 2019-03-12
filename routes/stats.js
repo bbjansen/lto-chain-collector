@@ -87,14 +87,14 @@ router.get('/', async function(req, res, next) {
       averageTarget: +avgConsensus[0].target.toFixed(2),
       activeLeases: countStartLease[0].count - countCancelLease[0].count,
       activeAddresses: activeAddresses[0].count,
-
       Txns: {
         standard: countTxns[0].count,
         anchor: countAnchors[0].count,
         mass: countMass[0].count,
         startLease: countStartLease[0].count,
         cancelLease: countCancelLease[0].count,
-      }
+      },
+      timestamp: moment().format('YYYY-MM-DD HH:mm:ss Z')
     }
     res.status(200).json(stats)
 
