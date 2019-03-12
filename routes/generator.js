@@ -14,7 +14,7 @@ router.get('/all', async function(req, res, next) {
 
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
+      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
@@ -46,7 +46,7 @@ router.get('/all/day', async function(req, res, next) {
 
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
+      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
@@ -75,7 +75,7 @@ router.get('/all/week', async function(req, res, next) {
 
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
+      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
@@ -105,7 +105,7 @@ router.get('/all/month', async function(req, res, next) {
 
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
+      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
@@ -134,7 +134,7 @@ router.get('/all/year', async function(req, res, next) {
 
       const generators = await db('blocks')
       .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.regular', 'addresses.label', 'addresses.url')
+      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
       .count('blocks.index as blocks')
       .sum('blocks.fee as earnings')
       .where('blocks.confirmed', true)
