@@ -51,9 +51,12 @@ router.get('/', async function(req, res, next) {
     .count('* as count')
     .where('type', 9)
 
-    const countMass = await db('transactions')
+    const countMassTx = await db('transactions')
     .count('* as count')
     .where('type', 11)
+
+    const countMassTransfers = await db('transfers')
+    .count('* as count')
 
     const totalAddresses = await db('addresses')
     .count('* as count')
@@ -90,7 +93,8 @@ router.get('/', async function(req, res, next) {
       Txns: {
         standard: countTxns[0].count,
         anchor: countAnchors[0].count,
-        mass: countMass[0].count,
+        massTransactions: countMassTx[0].count,
+        massTransfers: countMassTransfers[0].count,
         startLease: countStartLease[0].count,
         cancelLease: countCancelLease[0].count,
       },
