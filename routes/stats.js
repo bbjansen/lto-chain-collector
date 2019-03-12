@@ -173,6 +173,25 @@ router.get('/transaction/:period', async function(req, res, next) {
     .groupByRaw('date_format(datetime, "' + scale + '")')
     .groupBy('type')
 
+
+    // Sort data by period and type, thanks IBMC <3
+    const temp = {}
+  
+    getData.forEach((obj) => {
+      if (!temp[obj.period]) temp[obj.period] = {}
+      if (!temp[obj.period][obj.type]) temp[obj.period][obj.type] = 0
+      temp[obj.period][obj.type] += obj.count
+    })
+  
+    const data = []
+    Object.keys(temp).forEach((key) => {
+      data.push({
+        period: key,
+        types: temp[key]
+      })
+    })
+  
+    //console.log(data)
     const stats = {
       stats: {
         standard: countTxns[0].count,
@@ -182,7 +201,7 @@ router.get('/transaction/:period', async function(req, res, next) {
         startLease: countStartLease[0].count,
         cancelLease: countCancelLease[0].count,
       },
-      data: getData,
+      data: data,
       timestamp: moment().format('YYYY-MM-DD HH:mm:ss Z')
     }
     
