@@ -9,7 +9,7 @@ const db = require('../utils/utils').knex
 const moment = require('moment')
 
 // stats
-router.get('/', async function(req, res, next) {
+router.get('/all', async function(req, res, next) {
   try {
 
     const firstBlock = await db('blocks')
@@ -77,26 +77,28 @@ router.get('/', async function(req, res, next) {
     .avg('target as target')
 
     const stats = {
-      totalBlocks: lastBlock[0].index,
-      totalTxns: sumBlock[0].count,
-      totalSize: sumBlock[0].size,
-      totalFee: sumBlock[0].fee,
-      totalAddresses: totalAddresses[0].count,
-      totalGenerators: totalGenerators.length,
-      averageEmission: +avgBlockTime.toFixed(0),
-      averageBlockSize: +avgBlock[0].size.toFixed(0),
-      averageBlockTxns: +avgBlock[0].count.toFixed(2),
-      averageBlockFee: +avgBlock[0].fee.toFixed(2),
-      averageTarget: +avgConsensus[0].target.toFixed(2),
-      activeLeases: countStartLease[0].count - countCancelLease[0].count,
-      activeAddresses: activeAddresses[0].count,
-      Txns: {
-        standard: countTxns[0].count,
-        anchor: countAnchors[0].count,
-        massTransactions: countMassTx[0].count,
-        massTransfers: countMassTransfers[0].count,
-        startLease: countStartLease[0].count,
-        cancelLease: countCancelLease[0].count,
+      stats: {
+        totalBlocks: lastBlock[0].index,
+        totalTxns: sumBlock[0].count,
+        totalSize: sumBlock[0].size,
+        totalFee: sumBlock[0].fee,
+        totalAddresses: totalAddresses[0].count,
+        totalGenerators: totalGenerators.length,
+        averageEmission: +avgBlockTime.toFixed(0),
+        averageBlockSize: +avgBlock[0].size.toFixed(0),
+        averageBlockTxns: +avgBlock[0].count.toFixed(2),
+        averageBlockFee: +avgBlock[0].fee.toFixed(2),
+        averageTarget: +avgConsensus[0].target.toFixed(2),
+        activeLeases: countStartLease[0].count - countCancelLease[0].count,
+        activeAddresses: activeAddresses[0].count,
+        tx: {
+          standard: countTxns[0].count,
+          anchor: countAnchors[0].count,
+          massTransactions: countMassTx[0].count,
+          massTransfers: countMassTransfers[0].count,
+          startLease: countStartLease[0].count,
+          cancelLease: countCancelLease[0].count,
+        },
       },
       timestamp: moment().format('YYYY-MM-DD HH:mm:ss Z')
     }
@@ -106,4 +108,75 @@ router.get('/', async function(req, res, next) {
     next(err)
   }
 })
+
+// Get transactions count by period
+router.get('/transaction/:period', async function(req, res, next) {
+  try {
+
+    let range
+
+    if(req.params.period === 'day') {
+      range = 'days'
+    }
+    else if(req.params.period === 'week') {
+      range = 'week'
+    }
+    else if(req.params.period === 'month') {
+      range = 'month'
+    }
+    else if(req.params.period === 'year') {
+      range = 'year'
+    }
+
+    const countTxns = await db('transactions')
+    .count('* as count')
+    .where('type', 4)
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+
+    const countAnchors = await db('transactions')
+    .count('* as count')
+    .where('type', 15)
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+
+    const countStartLease = await db('transactions')
+    .count('* as count')
+    .where('type', 8)
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+
+    const countCancelLease = await db('transactions')
+    .count('* as count')
+    .where('type', 9)
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+
+    const countMassTx = await db('transactions')
+    .count('* as count')
+    .select()
+    .where('type', 11)
+    .whereBetween('datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+
+    const countMassTransfers = await db('transfers')
+    .leftOuterJoin('transactions', 'transfers.tid', 'transactions.id')
+    .count('* as count')
+    .whereBetween('transactions.datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+    //.groupBy('transfers.tid')
+
+    const stats = {
+      stats: {
+        standard: countTxns[0].count,
+        anchor: countAnchors[0].count,
+        massTransactions: countMassTx[0].count,
+        massTransfers: countMassTransfers[0].count,
+        startLease: countStartLease[0].count,
+        cancelLease: countCancelLease[0].count,
+      },
+      timestamp: moment().format('YYYY-MM-DD HH:mm:ss Z')
+    }
+    
+    res.status(200).json(stats)
+  
+  } catch (err) {
+    next(err)
+  }
+})
+
 module.exports = router
