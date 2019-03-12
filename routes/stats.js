@@ -70,7 +70,9 @@ router.get('/', async function(req, res, next) {
     .count('generator as sum')
     .groupBy('generator')
 
-    console.log(totalGenerators)
+    const avgConsensus = await db('consensus')
+    .avg('target as target')
+
     const stats = {
       totalBlocks: lastBlock[0].index,
       totalTxns: sumBlock[0].count,
@@ -82,6 +84,7 @@ router.get('/', async function(req, res, next) {
       averageBlockSize: +avgBlock[0].size.toFixed(0),
       averageBlockTxns: +avgBlock[0].count.toFixed(2),
       averageBlockFee: +avgBlock[0].fee.toFixed(2),
+      averageTarget: +avgConsensus[0].target.toFixed(2),
       activeLeases: countStartLease[0].count - countCancelLease[0].count,
       activeAddresses: activeAddresses[0].count,
 
