@@ -39,118 +39,43 @@ router.get('/all', async function(req, res, next) {
 
 
 // Get generators stats (day)
-router.get('/all/day', async function(req, res, next) {
+router.get('/all/:period', async function(req, res, next) {
   try {
 
-      const range = [moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')]
+    let range
 
-      const generators = await db('blocks')
-      .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
-      .count('blocks.index as blocks')
-      .sum('blocks.fee as earnings')
-      .where('blocks.confirmed', true)
-      .whereBetween('blocks.datetime', range)
-      .groupBy('blocks.generator')
-      .orderBy('blocks', 'desc')
+    if(req.params.period === 'day') {
+      range = 'days'
+    }
+    else if(req.params.period === 'week') {
+      range = 'week'
+    }
+    else if(req.params.period === 'month') {
+      range = 'month'
+    }
+    else if(req.params.period === 'year') {
+      range = 'year'
+    }
 
-      let total = generators.reduce((blocks, generator, index, generators) => {
-        return blocks += generator.blocks
-      }, 0)
+    const generators = await db('blocks')
+    .leftJoin('addresses', 'blocks.generator', 'addresses.address')
+    .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
+    .count('blocks.index as blocks')
+    .sum('blocks.fee as earnings')
+    .where('blocks.confirmed', true)
+    .whereBetween('blocks.datetime', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
+    .groupBy('blocks.generator')
+    .orderBy('blocks', 'desc')
 
-      generators.forEach(generator => {
-        generator.share = +((generator.blocks/total) * 100).toFixed(2) || 0
-      })
+    let total = generators.reduce((blocks, generator, index, generators) => {
+      return blocks += generator.blocks
+    }, 0)
 
-      res.json(generators)
-  } catch (err) {
-    next(err)
-  }
-})
+    generators.forEach(generator => {
+      generator.share = +((generator.blocks/total) * 100).toFixed(2) || 0
+    })
 
-
-// Get generators stats (week)
-router.get('/all/week', async function(req, res, next) {
-  try {
-
-      const generators = await db('blocks')
-      .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
-      .count('blocks.index as blocks')
-      .sum('blocks.fee as earnings')
-      .where('blocks.confirmed', true)
-      .whereBetween('blocks.datetime', [moment().subtract(1, 'week').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
-      .groupBy('blocks.generator')
-      .orderBy('blocks', 'desc')
-
-      let total = generators.reduce((blocks, generator, index, generators) => {
-        return blocks += generator.blocks
-      }, 0)
-
-      generators.forEach(generator => {
-        generator.share = +((generator.blocks/total) * 100).toFixed(2) || 0
-      })
-
-      res.json(generators)
-  } catch (err) {
-    next(err)
-  }
-})
-
-
-
-// Get generators stats (month)
-router.get('/all/month', async function(req, res, next) {
-  try {
-
-      const generators = await db('blocks')
-      .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
-      .count('blocks.index as blocks')
-      .sum('blocks.fee as earnings')
-      .where('blocks.confirmed', true)
-      .whereBetween('blocks.datetime', [moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
-      .groupBy('blocks.generator')
-      .orderBy('blocks', 'desc')
-
-      let total = generators.reduce((blocks, generator, index, generators) => {
-        return blocks += generator.blocks
-      }, 0)
-
-      generators.forEach(generator => {
-        generator.share = +((generator.blocks/total) * 100).toFixed(2) || 0
-      })
-
-      res.json(generators)
-  } catch (err) {
-    next(err)
-  }
-})
-
-
-// Get generators stats (month)
-router.get('/all/year', async function(req, res, next) {
-  try {
-
-      const generators = await db('blocks')
-      .leftJoin('addresses', 'blocks.generator', 'addresses.address')
-      .select('blocks.generator', 'addresses.effective as pool', 'addresses.label', 'addresses.url')
-      .count('blocks.index as blocks')
-      .sum('blocks.fee as earnings')
-      .where('blocks.confirmed', true)
-      .whereBetween('blocks.datetime', [moment().subtract(1, 'year').format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
-      .groupBy('blocks.generator')
-      .orderBy('blocks', 'desc')
-
-      let total = generators.reduce((blocks, generator, index, generators) => {
-        return blocks += generator.blocks
-      }, 0)
-
-      generators.forEach(generator => {
-        generator.share = +((generator.blocks/total) * 100).toFixed(2) || 0
-      })
-
-      res.json(generators)
+    res.json(generators)
   } catch (err) {
     next(err)
   }
