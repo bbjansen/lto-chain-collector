@@ -36,9 +36,14 @@ async function purgeBlocks(start) {
 
         const txns = await db('transactions')
         .select('id')
-        .whereBetween('block', [start, (+start, +end)])
+        .whereBetween('block', [start, end])
 
         txns.map(async (t) => {
+            
+            await db('transactions')
+            .where('id', t.id)
+            .del()
+
             await db('proofs')
             .where('tid', t.id)
             .del()
@@ -55,7 +60,6 @@ async function purgeBlocks(start) {
         })
 
         console.log('[Purged] Block ' + start + ' - ' + end)
-
     }
     catch(err) {
         console.log(err)
