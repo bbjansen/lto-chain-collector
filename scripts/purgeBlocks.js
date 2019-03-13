@@ -30,6 +30,8 @@ async function purgeBlocks(start) {
             await db('features')
             .where('index', b.index)
             .del()
+
+            console.log('[Purged] Block ' + b.index)
         })
 
         const txns = await db('transactions')
@@ -48,6 +50,8 @@ async function purgeBlocks(start) {
             await db('transfers')
             .where('tid', t.id)
             .del()
+
+            console.log('[Purged] Tx ' + t.id)
         })
 
         console.log('[Purged] Block ' + start + ' - ' + end)
