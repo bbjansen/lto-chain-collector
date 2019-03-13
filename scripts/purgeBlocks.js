@@ -15,6 +15,8 @@ async function purgeBlocks(start) {
         .select('index')
         .where('index', '>=', start)
 
+        const end = (+start + +blocks.length)
+
         blocks.map(async (b) => {
 
             await db('blocks')
@@ -28,32 +30,27 @@ async function purgeBlocks(start) {
             await db('features')
             .where('index', b.index)
             .del()
-
-            const txns = await db('transactions')
-            .select('id')
-            .where('block', b.index)
-
-            txns.map(async (t) => {
-                await db('proofs')
-                .where('tid', t.id)
-                .del()
-    
-                await db('anchors')
-                .where('tid', t.id)
-                .del()
-    
-                await db('transfers')
-                .where('tid', t.id)
-                .del()
-            })
-
-            await db('transactions')
-            .where('block', b.index)
-            .del()
-
         })
 
-        console.log('[Purged] Block ' + start + ' - ' + (+start + +blocks.length))
+        const txns = await db('transactions')
+        .select('id')
+        .whereBetween('block', [start, (+start, +end)])
+
+        txns.map(async (t) => {
+            await db('proofs')
+            .where('tid', t.id)
+            .del()
+
+            await db('anchors')
+            .where('tid', t.id)
+            .del()
+
+            await db('transfers')
+            .where('tid', t.id)
+            .del()
+        })
+
+        console.log('[Purged] Block ' + start + ' - ' + end)
 
     }
     catch(err) {
