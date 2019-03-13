@@ -190,16 +190,20 @@ router.get('/transaction/:period', async function(req, res, next) {
       if(!temp[key][4]) {
         temp[key][4] = 0
       }
-      else if(!temp[key][11]) {
+      
+      if(!temp[key][11]) {
         temp[key][11] = 0
       }
-      else if(!temp[key][15]) {
+      
+      if(!temp[key][15]) {
         temp[key][15] = 0
       }
-      else if(!temp[key][8]) {
+      
+      if(!temp[key][8]) {
         temp[key][8] = 0
       }
-      else if(!temp[key][9]) {
+      
+      if(!temp[key][9]) {
         temp[key][9] = 0
       }
 
