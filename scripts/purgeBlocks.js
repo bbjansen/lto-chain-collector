@@ -53,7 +53,7 @@ async function purgeBlocks(start) {
 
         })
 
-        console.log('[Purged] Block ' + start + ' - ' + (start + blocks.length))
+        console.log('[Purged] Block ' + start + ' - ' + (+start + +blocks.length))
 
     }
     catch(err) {
