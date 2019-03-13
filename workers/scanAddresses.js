@@ -24,8 +24,9 @@ async function scanAddress() {
     const addresses = await db('addresses')
     .select('address')
     .whereRaw('updated < NOW() - INTERVAL 10 MINUTE')
-    .select(process.env.BATCH_SCAN_ADDRESS)
-
+    .select()
+    .limit(process.env.BATCH_SCAN_ADDRESS)
+    
     addresses.map(async (a) => {
 
       // Timeout
