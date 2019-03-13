@@ -185,6 +185,24 @@ router.get('/transaction/:period', async function(req, res, next) {
   
     const data = []
     Object.keys(temp).forEach((key) => {
+
+      // Populate data with 0 for missing data
+      if(!temp[key][4]) {
+        temp[key][4] = 0
+      }
+      else if(!temp[key][11]) {
+        temp[key][11] = 0
+      }
+      else if(!temp[key][15]) {
+        temp[key][15] = 0
+      }
+      else if(!temp[key][8]) {
+        temp[key][8] = 0
+      }
+      else if(!temp[key][9]) {
+        temp[key][9] = 0
+      }
+
       data.push({
         period: key,
         types: temp[key]
