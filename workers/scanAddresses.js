@@ -24,23 +24,26 @@ async function scanAddress() {
     const addresses = await db('addresses')
     .select('address')
     .whereRaw('updated < NOW() - INTERVAL 10 MINUTE')
-    .select(100)
+    .select(process.env.BATCH_SCAN_ADDRESS)
 
     addresses.map(async (a) => {
 
-      // Get address current balance
-      const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + a.address)
+      // Timeout
+      setTimeout(async () => {
+        // Get address current balance
+        const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + a.address)
 
-      await db('addresses').update({
-        regular: balances.data.regular / process.env.ATOMIC,
-        generating: balances.data.generating / process.env.ATOMIC,
-        available: balances.data.available / process.env.ATOMIC,
-        effective: balances.data.effective / process.env.ATOMIC,
-        updated: moment().format('YYYY-MM-DD HH:mm:ss')
-      })
-      .where('address', a.address)
+        await db('addresses').update({
+          regular: balances.data.regular / process.env.ATOMIC,
+          generating: balances.data.generating / process.env.ATOMIC,
+          available: balances.data.available / process.env.ATOMIC,
+          effective: balances.data.effective / process.env.ATOMIC,
+          updated: moment().format('YYYY-MM-DD HH:mm:ss')
+        })
+        .where('address', a.address)
 
-      console.log('[Address] [' + a.address + '] updated')
+        console.log('[Address] [' + a.address + '] updated') 
+      }, process.env.TIMEOUT)
     })
   }
   catch(err) {

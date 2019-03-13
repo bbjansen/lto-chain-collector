@@ -23,29 +23,33 @@ async function confirmBlocks() {
     const blocks = await db('blocks')
     .select('index', 'signature', 'timestamp')
     .where('confirmed', false)
-    .limit(100)
+    .limit(process.env.BATCH_CONFIRM_BLOCKS)
 
     blocks.map(async (block) => {
 
       let duration = moment.duration(moment().diff(moment(block.timestamp))).asMinutes()
 
       if(duration >= 90) {
-        axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + block.index)
-        .then(b => {
-          // Validate signature
-          if(b.data.signature === block.signature) {
-            return db('blocks').update({
-              confirmed: true
-            })
-            .where('index', block.index)
-            .then(d => {
-              console.log('[Block] [' + block.index + '] confirmed')
-            })
-          }
-        })
-        .catch(err => {
-          console.log('[Block] [' + block.index + '] orphaned')
-        })
+
+        // Timeout
+        setTimeout(async () => {
+          axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + block.index)
+          .then(b => {
+            // Validate signature
+            if(b.data.signature === block.signature) {
+              return db('blocks').update({
+                confirmed: true
+              })
+              .where('index', block.index)
+              .then(d => {
+                console.log('[Block] [' + block.index + '] confirmed')
+              })
+            }
+          })
+          .catch(err => {
+            console.log('[Block] [' + block.index + '] orphaned')
+          })
+         }, process.env.TIMEOUT)
       }
     })
   }

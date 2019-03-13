@@ -20,33 +20,36 @@ async function collectAddress() {
     // Get all recorded recipients
     const recipient = await db('transactions')
     .select('recipient as address')
-    .limit(50)
+    .limit(process.env.BATCH_COLLECT_ADDRESS)
     .whereNotIn(['recipient'], db.select('address').from('addresses'))
 
     
     // Get all recorded sender
     const sender = await db('transactions')
     .select('sender as address')
-    .limit(50)
+    .limit(process.env.BATCH_COLLECT_ADDRESS)
     .whereNotIn(['sender'], db.select('address').from('addresses'))
 
     const addresses = recipient.concat(sender)
 
     addresses.map(async (v) => {
 
-      // Get balancess
-      const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + v.address)
+      // Timeout
+      setTimeout(async () => {
+        // Get balancess
+        const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + v.address)
 
-      // Store
-      await db('addresses').insert({
-        address: v.address,
-        regular: balances.data.regular / process.env.ATOMIC,
-        generating: balances.data.generating / process.env.ATOMIC,
-        available: balances.data.available / process.env.ATOMIC,
-        effective: balances.data.effective / process.env.ATOMIC,
-      })
+        // Store
+        await db('addresses').insert({
+          address: v.address,
+          regular: balances.data.regular / process.env.ATOMIC,
+          generating: balances.data.generating / process.env.ATOMIC,
+          available: balances.data.available / process.env.ATOMIC,
+          effective: balances.data.effective / process.env.ATOMIC,
+        })
 
-      console.log('[Address] [' + v.address + '] collected')
+        console.log('[Address] [' + v.address + '] collected')
+      }, process.env.TIMEOUT)
     })
 
   }

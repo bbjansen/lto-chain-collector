@@ -26,34 +26,37 @@ async function confirmTx() {
     .select('transactions.id')
     //.where('blocks.confirmed', true)
     .where('transactions.confirmed', false)
-    .limit(100)
+    .limit(process.env.BATCH_CONFIRM_TX)
 
     transactions.map(async (tx) => {
 
-      // Check if transaction exist
-      axios.get('https://' + process.env.NODE_IP + '/transactions/info/' + tx.id)
-      .then(d => {
- 
-        // check if tx is confirmed
-        return axios.get('https://' + process.env.NODE_IP + '/transactions/unconfirmed/info/' + tx.id)
- 
-      })
-      .catch(err => {        
-        // If this error, confirm tx - we can ignore the other error
-        // sidenote: please introduce error codes lto devs
-        if(err.response.data.details === 'Transaction is not in UTX') {
-
-          db('transactions').update({
-            confirmed: true
-          })
-          .where('id', tx.id)
-          .then(d => {
-            console.log('[Tx] [' + tx.id + '] confirmed')
-          })
-        } else {
-          console.log('[Tx] [' + tx.id + '] orphaned')
-        }
-      })
+      // Timeout
+      setTimeout(async () => {
+        // Check if transaction exist
+        axios.get('https://' + process.env.NODE_IP + '/transactions/info/' + tx.id)
+        .then(d => {
+   
+          // check if tx is confirmed
+          return axios.get('https://' + process.env.NODE_IP + '/transactions/unconfirmed/info/' + tx.id)
+   
+        })
+        .catch(err => {        
+          // If this error, confirm tx - we can ignore the other error
+          // sidenote: please introduce error codes lto devs
+          if(err.response.data.details === 'Transaction is not in UTX') {
+  
+            db('transactions').update({
+              confirmed: true
+            })
+            .where('id', tx.id)
+            .then(d => {
+              console.log('[Tx] [' + tx.id + '] confirmed')
+            })
+          } else {
+            console.log('[Tx] [' + tx.id + '] orphaned')
+          }
+        })
+      }, process.env.TIMEOUT)
     })
   }
   catch(err) {
