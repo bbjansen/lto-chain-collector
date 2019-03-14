@@ -130,12 +130,12 @@ db.schema.hasTable('addresses').then(function (exists) {
 db.schema.hasTable('peers').then(function (exists) {
   if (!exists) {
     return db.schema.createTable('peers', function (table) {
-      table.string('address').unique().primary().notNullable()
-      table.string('declared').notNullable()
-      table.string('peerName').notNullable()
-      table.integer('nonce').notNullable()
-      table.string('appName').notNullable()
-      table.string('version').notNullable()
+      table.string('address').unique().primary()
+      table.string('declared')
+      table.string('peerName')
+      table.integer('nonce')
+      table.string('appName')
+      table.string('version')
       table.string('country')
       table.decimal('lat', [10, 8])
       table.decimal('lng', [11, 8])

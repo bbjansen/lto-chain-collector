@@ -26,17 +26,16 @@ async function collectPeers() {
 
     const knownPeers = await db('peers')
     .select()
-    .where('public', true)
 
     // Add known peers to scan
     knownPeers.forEach(p => {
       getPeers.data.peers.push({
         address: '/' + p.address,
-        declaredAddress:  '/' + p.address,
-        peerName: p.peerName,
-        peerNonce: p.peerNonce,
-        applicationName: p.appName,
-        applicationVersion: p.version
+        declaredAddress:  '/' + p.address || null,
+        peerName: p.peerName || null,
+        peerNonce: p.peerNonce || null,
+        applicationName: p.appName || null,
+        applicationVersion: p.version || null,
       })
     })
 
@@ -124,7 +123,7 @@ async function collectPeers() {
           if(getUptime[0].uptime.length >= 24) {
             // update shortened uptime
             await db('peers').update({
-              uptime:getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
+              uptime: getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
             })
             .where('address', p2pAddress)
           }
