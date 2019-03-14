@@ -17,12 +17,30 @@ setInterval(function() {
 // open. If the address has already been logged, it updates
 // the data.
 
+collectPeers()
+
 async function collectPeers() {
   try {
 
     //Insert self
 
     const getPeers = await axios.get('https://' + process.env.NODE_IP + '/peers/connected')
+
+    const knownPeers = await db('peers')
+    .select()
+    .where('public', true)
+
+    // Add known peers to scan
+    knownPeers.forEach(p => {
+      getPeers.data.peers.push({
+        address: '/' + p.address,
+        declaredAddress:  '/' + p.address,
+        peerName: p.peerName,
+        peerNonce: p.peerNonce,
+        applicationName: p.appName,
+        applicationVersion: p.version
+      })
+    })
 
     getPeers.data.peers.push({
       address: '/' + process.env.NODE_ADDRESS,
