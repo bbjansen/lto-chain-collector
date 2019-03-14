@@ -11,10 +11,11 @@ const moment = require('moment')
 // Get all peers
 router.get('/all', async function(req, res, next) {
   try {
-      const getPeers = await db('peers')
-      .leftJoin('addresses', 'peers.generator', 'addresses.address')
-      .select('peers.*', 'addresses.label', 'addresses.url')
-      res.json(getPeers)
+    const getPeers = await db('peers')
+    .leftJoin('addresses', 'peers.generator', 'addresses.address')
+    .select('peers.*', 'addresses.label', 'addresses.url')
+
+    res.json(getPeers)
   } catch (err) {
     next(err)
   }
@@ -24,12 +25,12 @@ router.get('/all', async function(req, res, next) {
 // Get peer by address
 router.get('/:address', async function(req, res, next) {
   try {
-      const getPeers = await db('peers')
-      .leftJoin('addresses', 'peers.generator', 'addresses.address')
-      .select('peers.*', 'addresses.label', 'addresses.url')
-      .where('peers.address', req.params.address)
+    const getPeers = await db('peers')
+    .leftJoin('addresses', 'peers.generator', 'addresses.address')
+    .select('peers.*', 'addresses.label', 'addresses.url')
+    .where('peers.address', req.params.address)
 
-      res.json(getPeers)
+    res.json(getPeers)
   } catch (err) {
     next(err)
   }

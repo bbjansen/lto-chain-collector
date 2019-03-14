@@ -17,8 +17,6 @@ setInterval(function() {
 // open. If the address has already been logged, it updates
 // the data.
 
-collectPeers()
-
 async function collectPeers() {
   try {
 
