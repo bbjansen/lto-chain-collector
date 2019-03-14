@@ -12,12 +12,10 @@ setInterval(function() {
   collectPeers()
 }, process.env.INTERVAL_COLLECT_PEERS)
 
-
-collectPeers()
-
-// Takes all recipient and sender addresses in recorded transactions
-// and stores them in the addresses table so we can track it in
-// scanAddress.js 
+// Takes all connected to peers from the node API and geoip
+// locate them and checks for its address and if the API is
+// open. If the address has already been logged, it updates
+// the data.
 
 async function collectPeers() {
   try {

@@ -42,6 +42,7 @@ app.use('/anchor', require('./routes/anchor'))
 app.use('/lease', require('./routes/lease'))
 app.use('/generator', require('./routes/generator'))
 app.use('/address', require('./routes/address'))
+app.use('/peer', require('./routes/peer'))
 app.use('/stats', require('./routes/stats'))
 
 // Workers

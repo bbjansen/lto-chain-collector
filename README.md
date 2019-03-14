@@ -17,6 +17,7 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 - `/lease/`
 - `/generator/`
 - `/address/`
+- `/peer/`
 - `/stats/`
 
 ## .env example
