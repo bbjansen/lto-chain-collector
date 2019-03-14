@@ -31,7 +31,7 @@ async function purgeBlocks(start) {
             .where('index', b.index)
             .del()
 
-            console.log('[Purged] Block ' + b.index)
+            console.log('[Block] Purged ' + b.index)
         })
 
         const txns = await db('transactions')

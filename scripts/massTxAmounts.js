@@ -23,7 +23,7 @@ async function calculateAmounts() {
         txns.map(async (tx) => {
             await db('transactions')
             .update({
-                amount: tx.sum
+                amount: tx.sum || 0
             })
             .where('id', tx.id)
             console.log('[Tx] [' + tx.id + '] updated with an amount of ' + tx.sum + '.')
