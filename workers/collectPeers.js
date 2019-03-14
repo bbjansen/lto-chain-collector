@@ -69,7 +69,7 @@ async function collectPeers() {
         .where('address', p2pAddress)
 
         // New peer
-        if(getPeer[0].count <= 0) {
+        if(getPeer[0].count === 0) {
 
 
           try {
@@ -112,7 +112,7 @@ async function collectPeers() {
 
           console.log('[Peer] [' + p2pAddress + '] added.')
         } // update node
-        else if(getPeer[0].count >= 1) {
+        else if(getPeer[0].count === 1) {
 
           // Check uptime lengths, only allow 24 (one per hour)
           const getUptime = await db('peers')
