@@ -75,7 +75,7 @@ async function collectPeers() {
               lng: geo.ll[1] || null,
               generator: getAddress.data[0],
               public: true,
-              uptime: '|'
+              uptime: '|-----------------------'
             }) 
 
           } catch(err) {
@@ -91,7 +91,7 @@ async function collectPeers() {
               lat: geo.ll[0] || null,
               lng: geo.ll[1] || null,
               public: false,
-              uptime: '-'
+              uptime: '------------------------'
             })
           }
 
