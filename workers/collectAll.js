@@ -129,7 +129,7 @@ async function collectAll() {
                     recipient: tx.recipient,
                     sender: tx.sender,
                     senderPublicKey: tx.senderPublicKey,
-                    amount: (tx.amount / process.env.ATOMIC) || null,
+                    amount: (tx.amount / process.env.ATOMIC) || (tx.totalAmount / process.env.ATOMIC),
                     fee: tx.fee / process.env.ATOMIC,
                     signature: tx.signature,
                     attachment: tx.attachment,
