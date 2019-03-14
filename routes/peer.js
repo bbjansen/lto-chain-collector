@@ -12,8 +12,8 @@ const moment = require('moment')
 router.get('/all', async function(req, res, next) {
   try {
       const getPeers = await db('peers')
-      .select()
-
+      .leftJoin('addresses', 'peers.generator', 'addresses.address')
+      .select('peers.*', 'addresses.label', 'addresses.url')
       res.json(getPeers)
   } catch (err) {
     next(err)
@@ -25,8 +25,9 @@ router.get('/all', async function(req, res, next) {
 router.get('/:address', async function(req, res, next) {
   try {
       const getPeers = await db('peers')
-      .where('address', req.params.address)
-      .select()
+      .leftJoin('addresses', 'peers.generator', 'addresses.address')
+      .select('peers.*', 'addresses.label', 'addresses.url')
+      .where('peers.address', req.params.address)
 
       res.json(getPeers)
   } catch (err) {
@@ -55,11 +56,10 @@ router.get('/last/:period', async function(req, res, next) {
       range = 'year'
     }
 
-
     const getPeers = await db('peers')
-    .select()
-    .whereBetween('updated', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
-
+    .leftJoin('addresses', 'peers.generator', 'addresses.address')
+    .select('peers.*', 'addresses.label', 'addresses.url')  
+    .whereBetween('peers.updated', [moment().subtract(1, range).format('YYYY-MM-DD HH:mm:ss'), moment().format('YYYY-MM-DD HH:mm:ss')])
 
     res.json(getPeers)
   } catch (err) {
