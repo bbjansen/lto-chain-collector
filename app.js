@@ -50,6 +50,7 @@ require('./workers/confirmBlocks')
 require('./workers/confirmTx')
 require('./workers/collectAddresses')
 require('./workers/scanAddresses.js')
+require('./workers/collectPeers.js')
 
 
 // error handler
