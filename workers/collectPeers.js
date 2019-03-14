@@ -107,7 +107,7 @@ async function collectPeers() {
           .where('address', p2pAddress)
           .limit(1)
 
-          if(getUptime[0].uptime.length >= 3) {
+          if(getUptime[0].uptime.length >= 24) {
             // update shortened uptime
             await db('peers').update({
               uptime:getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
