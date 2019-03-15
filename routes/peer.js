@@ -36,6 +36,8 @@ router.get('/:address', async function(req, res, next) {
   }
 })
 
+// Get peer by period
+
 router.get('/last/:period', async function(req, res, next) {
   try {
     

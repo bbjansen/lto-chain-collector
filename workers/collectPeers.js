@@ -6,8 +6,10 @@
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const geoip = require('geoip-lite')
-const moment = require('moment'
-)
+const moment = require('moment')
+const portscanner = require('portscanner')
+
+
 setInterval(function() { 
   collectPeers()
 }, process.env.INTERVAL_COLLECT_PEERS)
@@ -17,12 +19,16 @@ setInterval(function() {
 // open. If the address has already been logged, it updates
 // the data.
 
+
+collectPeers()
+
 async function collectPeers() {
   try {
 
-    //Insert self
-
-    const getPeers = await axios.get('https://' + process.env.NODE_IP + '/peers/connected')
+    // Get Peers
+    const getPeers = await axios.get('https://' + process.env.NODE_IP + '/peers/connected', {
+      timeout: 10000
+    })
 
     const knownPeers = await db('peers')
     .select()
@@ -39,6 +45,7 @@ async function collectPeers() {
       })
     })
 
+    // Add self
     getPeers.data.peers.push({
       address: '/' + process.env.NODE_ADDRESS,
       declaredAddress:  '/' + process.env.NODE_ADDRESS,
@@ -59,10 +66,7 @@ async function collectPeers() {
         const apiPort = +addressArray[1] + 1
         const p2pAddress = ip + ':' + p2pPort
         const apiAddress = ip + ':' + apiPort
-  
-        // Geo
-        const geo = geoip.lookup(ip)
-  
+    
         // Look up if peer has been detected before
         const getPeer = await db('peers')
         .count('* as count')
@@ -71,44 +75,88 @@ async function collectPeers() {
         // New peer
         if(getPeer[0].count === 0) {
 
+          // Insert peer
+          await db('peers').insert({
+            address: p2pAddress,
+            declared: p.declaredAddress,
+            peerName: p.peerName,
+            nonce: p.peerNonce,
+            appName: p.applicationName,
+            version: p.applicationVersion
+          }) 
 
-          try {
-            const getAddress = await axios.get('http://' + apiAddress + '/addresses', {
-              timeout: process.env.TIMEOUT
-            })
+          // Log Geo
+          const geo = geoip.lookup(ip)
 
-            // Node is public!
-            await db('peers').insert({
-              address: p2pAddress,
-              declared: p.declaredAddress,
-              peerName: p.peerName,
-              nonce: p.peerNonce,
-              appName: p.applicationName,
-              version: p.applicationVersion,
-              country: geo.country,
+          if(geo && geo.length >= 1) {
+            return db('peers').update({
+              api: false,
+              country: geo.country || null,
               lat: geo.ll[0] || null,
               lng: geo.ll[1] || null,
-              generator: getAddress.data[0],
-              public: true,
-              uptime: '|-----------------------'
-            }) 
-
-          } catch(err) {
-            // Node is closed!
-            await db('peers').insert({
-              address: p2pAddress,
-              declared: p.declaredAddress,
-              peerName: p.peerName,
-              nonce: p.peerNonce,
-              appName: p.applicationName,
-              version: p.applicationVersion,
-              country: geo.country,
-              lat: geo.ll[0] || null,
-              lng: geo.ll[1] || null,
-              public: false,
-              uptime: '------------------------'
+              updated: moment().format('YYYY-MM-DD HH:mm:ss')
             })
-          }
+            .where('address', p2pAddress)
+          }         
+
+
+          // Scan port and log uptime
+          portscanner.checkPortStatus(p2pPort, ip)
+          .then(port => {
+
+            // Log Port + uptime
+            return db('peers').update({
+              port: port === 'open' ? port = true : port = false
+            })
+            .where('address', p2pAddress)
+          })
+          .catch(err => {
+
+            // Log Port + downtime
+            return db('peers').update({
+              port: false,
+              uptime: db.raw('CONCAT(?, uptime)', ['-'])
+            })
+            .where('address', p2pAddress)
+          })
+
+
+          // Scan API port
+          portscanner.checkPortStatus(apiPort, ip)
+          .then(api => {
+        
+            // Log API
+            return db('peers').update({
+              api: api === 'open' ? api = true : api = false,
+              updated: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+            .where('address', p2pAddress)
+          })
+          .catch(err => {
+
+            // Log API
+            return db('peers').update({
+              api: false,
+              updated: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+            .where('address', p2pAddress)
+          })
+
+
+          // Log Address
+          axios.get('http://' + apiAddress + '/addresses', {
+            timeout: 10000
+          })
+          .then(address => {
+            return db('peers').update({
+              generator: address.data[0],
+              updated: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+            .where('address', p2pAddress)
+          })
+          .catch(err => {
+          })
+
 
           console.log('[Peer] [' + p2pAddress + '] added.')
         } // update node
@@ -120,7 +168,7 @@ async function collectPeers() {
           .where('address', p2pAddress)
           .limit(1)
 
-          if(getUptime[0].uptime.length >= 24) {
+          if(getUptime[0].uptime.length === 24) {
             // update shortened uptime
             await db('peers').update({
               uptime: getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
@@ -128,46 +176,73 @@ async function collectPeers() {
             .where('address', p2pAddress)
           }
 
-          // Ping node and update data
-          try {
-            const getAddress = await axios.get('http://' + apiAddress + '/addresses', {
-              timeout: process.env.TIMEOUT
-            })
+          // Log Geo
+          const geo = geoip.lookup(ip)
 
-            // Node is public!
-            await db('peers').update({
-              declared: p.declaredAddress,
-              peerName: p.peerName,
-              nonce: p.peerNonce,
-              appName: p.applicationName,
-              version: p.applicationVersion,
-              country: geo.country,
+
+          if(geo && geo.length >= 1) {
+            return db('peers').update({
+              api: false,
+              country: geo.country || null,
               lat: geo.ll[0] || null,
               lng: geo.ll[1] || null,
-              generator: getAddress.data[0],
-              public: true,
-              uptime: db.raw('CONCAT(?, uptime)', ['|']),
               updated: moment().format('YYYY-MM-DD HH:mm:ss')
             })
             .where('address', p2pAddress)
           }
-          catch(err) {
-            // Node is closed!
-            await db('peers').update({
-              declared: p.declaredAddress,
-              peerName: p.peerName,
-              nonce: p.peerNonce,
-              appName: p.applicationName,
-              version: p.applicationVersion,
-              country: geo.country,
-              lat: geo.ll[0] || null,
-              lng: geo.ll[1] || null,
-              public: false,
-              uptime: db.raw('CONCAT(?, uptime)', ['-']),
+
+          // Scan port and log uptime
+          portscanner.checkPortStatus(p2pPort, ip)
+          .then(port => {
+
+            // Log Port + uptime
+            return db('peers').update({
+              port: port === 'open' ? port = true : port = false,
+              uptime: db.raw('CONCAT(?, uptime)', ['|'])
+            })
+            .where('address', p2pAddress)
+          })
+          .catch(err => {
+
+            // Log Port + downtime
+            return db('peers').update({
+              port: false,
+              uptime: db.raw('CONCAT(?, uptime)', ['-'])
+            })
+            .where('address', p2pAddress)
+          })
+
+          // Scan API port
+          portscanner.checkPortStatus(apiPort, ip)
+          .then(api => {    
+
+            // Log API
+            return db('peers').update({
+              api: api === 'open' ? api = true : api = false,
               updated: moment().format('YYYY-MM-DD HH:mm:ss')
             })
             .where('address', p2pAddress)
-          }
+          })
+          .catch(err => {
+
+            // Log API
+            return db('peers').update({
+              api: false,
+              updated: moment().format('YYYY-MM-DD HH:mm:ss')
+            })
+            .where('address', p2pAddress)
+          })
+
+          // Update
+          await db('peers').update({
+            declared: p.declaredAddress,
+            peerName: p.peerName,
+            nonce: p.peerNonce,
+            appName: p.applicationName,
+            version: p.applicationVersion,
+            updated: moment().format('YYYY-MM-DD HH:mm:ss')
+          })
+          .where('address', p2pAddress)
 
           console.log('[Peer] [' + p2pAddress + '] updated.')
         }
@@ -175,6 +250,7 @@ async function collectPeers() {
     })
   }
   catch(err) {
-    console.log(err)
+    
+
   }
 }
