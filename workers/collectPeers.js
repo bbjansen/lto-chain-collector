@@ -12,7 +12,7 @@ const portscanner = require('portscanner')
 
 setInterval(function() { 
   collectPeers()
-}, proces.env.INTERVAL_COLLECT_PEERS)
+}, process.env.INTERVAL_COLLECT_PEERS)
 
 // Takes all connected to peers from the node API and geoip
 // locate them and checks for its address and if the API is
