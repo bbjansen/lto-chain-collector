@@ -12,7 +12,7 @@ const portscanner = require('portscanner')
 
 setInterval(function() { 
   collectPeers()
-}, process.env.INTERVAL_COLLECT_PEERS)
+}, proces.env.INTERVAL_COLLECT_PEERS)
 
 // Takes all connected to peers from the node API and geoip
 // locate them and checks for its address and if the API is
@@ -96,14 +96,14 @@ async function collectPeers() {
             .where('address', p2pAddress)
           }         
 
-
           // Scan port and log uptime
           portscanner.checkPortStatus(p2pPort, ip)
           .then(port => {
 
             // Log Port + uptime
             return db('peers').update({
-              port: port === 'open' ? port = true : port = false
+              port: port === 'open' ? port = true : port = false,
+              uptime: db.raw('CONCAT(?, CONCAT(LEFT(uptime, CHAR_LENGTH(uptime) -1), ""))', ["|"])
             })
             .where('address', p2pAddress)
           })
@@ -112,7 +112,7 @@ async function collectPeers() {
             // Log Port + downtime
             return db('peers').update({
               port: false,
-              uptime: db.raw('CONCAT(?, uptime)', ['-'])
+              uptime: db.raw('CONCAT(?, CONCAT(LEFT(uptime, CHAR_LENGTH(uptime) -1), ""))', ["-"])
             })
             .where('address', p2pAddress)
           })
@@ -165,7 +165,9 @@ async function collectPeers() {
           .where('address', p2pAddress)
           .limit(1)
 
-          if(getUptime[0].uptime.length === 24) {
+          if(getUptime[0].uptime.length >= 24) {
+
+            console.log(getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1))
             // update shortened uptime
             await db('peers').update({
               uptime: getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
@@ -195,7 +197,7 @@ async function collectPeers() {
             // Log Port + uptime
             return db('peers').update({
               port: port === 'open' ? port = true : port = false,
-              uptime: db.raw('CONCAT(?, uptime)', ['|'])
+              uptime: db.raw('CONCAT(?, CONCAT(LEFT(uptime, CHAR_LENGTH(uptime) -1), ""))', ["|"])
             })
             .where('address', p2pAddress)
           })
@@ -204,7 +206,7 @@ async function collectPeers() {
             // Log Port + downtime
             return db('peers').update({
               port: false,
-              uptime: db.raw('CONCAT(?, uptime)', ['-'])
+              uptime: db.raw('CONCAT(?, CONCAT(LEFT(uptime, CHAR_LENGTH(uptime) -1), ""))', ["-"])
             })
             .where('address', p2pAddress)
           })
