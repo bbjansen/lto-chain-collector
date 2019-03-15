@@ -159,25 +159,8 @@ async function collectPeers() {
         } // update node
         else if(getPeer[0].count === 1) {
 
-          // Check uptime lengths, only allow 24 (one per hour)
-          const getUptime = await db('peers')
-          .select('uptime')
-          .where('address', p2pAddress)
-          .limit(1)
-
-          if(getUptime[0].uptime.length >= 24) {
-
-            console.log(getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1))
-            // update shortened uptime
-            await db('peers').update({
-              uptime: getUptime[0].uptime.substring(0, +getUptime[0].uptime.length - 1)
-            })
-            .where('address', p2pAddress)
-          }
-
           // Log Geo
           const geo = geoip.lookup(ip)
-
 
           if(geo && geo.length >= 1) {
             return db('peers').update({
