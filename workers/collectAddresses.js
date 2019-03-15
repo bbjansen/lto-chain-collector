@@ -36,22 +36,29 @@ async function collectAddress() {
 
       // Timeout
       setTimeout(async () => {
-        // Get balancess
-        const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + v.address)
 
-        // Store
-        await db('addresses').insert({
-          address: v.address,
-          regular: balances.data.regular / process.env.ATOMIC,
-          generating: balances.data.generating / process.env.ATOMIC,
-          available: balances.data.available / process.env.ATOMIC,
-          effective: balances.data.effective / process.env.ATOMIC,
-        })
+        // Check
+        const getAddress = await db('addresses')
+        .count('* as count')
+        .where('address', v.address)
 
-        console.log('[Address] [' + v.address + '] collected')
+        if(getAddress[0].length === 0 ) {
+          // Get balancess
+          const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + v.address)
+
+          // Store
+          await db('addresses').insert({
+            address: v.address,
+            regular: balances.data.regular / process.env.ATOMIC,
+            generating: balances.data.generating / process.env.ATOMIC,
+            available: balances.data.available / process.env.ATOMIC,
+            effective: balances.data.effective / process.env.ATOMIC,
+          })
+
+          console.log('[Address] [' + v.address + '] collected')
+        }
       }, process.env.TIMEOUT)
     })
-
   }
   catch(err) {
   }
