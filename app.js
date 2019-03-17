@@ -46,11 +46,11 @@ app.use('/peer', require('./routes/peer'))
 app.use('/stats', require('./routes/stats'))
 
 // Workers
-//require('./workers/collectAll')
-//require('./workers/confirmBlocks')
-//require('./workers/confirmTx')
-//require('./workers/collectAddresses')
-//require('./workers/scanAddresses.js')
+require('./workers/collectAll')
+require('./workers/confirmBlocks')
+require('./workers/confirmTx')
+require('./workers/collectAddresses')
+require('./workers/scanAddresses.js')
 require('./workers/collectPeers.js')
 
 
