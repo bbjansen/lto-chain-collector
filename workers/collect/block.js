@@ -16,7 +16,7 @@ module.exports = function (blockQueue) {
     setInterval(function() { 
         collectBlocks()
 
-     }, 3000);
+    }, process.env.COLLECT_BLOCKS)
 
     async function collectBlocks() {
         try {

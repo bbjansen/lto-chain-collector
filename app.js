@@ -56,8 +56,13 @@ async function initWorkers () {
   const txQueue = await rabbitMQ('txQueue')
 
   require('./workers/collect/block')(blockQueue)
+    require('./workers/collect/address')()
+
+
   require('./workers/process/block')(blockQueue, txQueue)
   require('./workers/process/tx')(txQueue)
+
+
 
 }
 
