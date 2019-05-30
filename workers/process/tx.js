@@ -7,9 +7,8 @@
 const db = require('../../utils/utils').knex
 const moment = require('moment')
 
+// Consumes all items in tx queue
 module.exports = function (txQueue) {
-    // Connect to txQueue and process all jobs
-
     txQueue.consume('txQueue', processTx)
 
     async function processTx (msg) {

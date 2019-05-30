@@ -7,6 +7,7 @@ const db = require('../../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
 
+
 setInterval(function() { 
   scanAddress()
 }, process.env.INTERVAL_SCAN_ADDRESS)

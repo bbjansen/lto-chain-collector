@@ -8,8 +8,8 @@ const db = require('../../utils/utils').knex
 const moment = require('moment')
 const UUID = require('uuid/v4')
 
+// Consumes all items in block queue
 module.exports = function (blockQueue, txQueue) {
-    // Connect to processQueue and process all jobs
 
     blockQueue.consume('blockQueue', processBlock)
 
