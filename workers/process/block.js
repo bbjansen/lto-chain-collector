@@ -4,7 +4,7 @@
 
 'use strict'
 
-const db = require('../utils/utils').knex
+const db = require('../../utils/utils').knex
 const moment = require('moment')
 const UUID = require('uuid/v4')
 
@@ -64,10 +64,10 @@ module.exports = function (blockQueue, txQueue) {
                     correlationId: UUID()
                 })
 
-                console.log('[Block] [' + msg.properties.correlationId + '] [' + block.height + '] collected' + ' (' + secs + ')')
+                console.log('[Block] [' + block.height + '] collected' + ' (' + secs + ')')
             }
             else {
-                console.log('[Block] [' + msg.properties.correlationId + '] [' + block.height + '] duplicate' + ' (' + secs + ')')
+                console.log('[Block] [' + block.height + '] duplicate' + ' (' + secs + ')')
             }
 
             // Acknowledge
@@ -77,7 +77,7 @@ module.exports = function (blockQueue, txQueue) {
         catch (err) {
             // Acknowledge the job, to avoid it going back to the queue - read message at start
             // processBlock.ack(msg)
-            console.log('[Process Block] [' + msg.properties.correlationId + '] Error: ' + err.toString())
+            console.log('[Process Block] Error: ' + err.toString())
         }
     }
 }

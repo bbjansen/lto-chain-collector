@@ -4,18 +4,19 @@
 
 'use strict'
 
-const db = require('../utils/utils').knex
+const db = require('../../utils/utils').knex
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
 // Collect newly produced blocks and sends them to the queue for internal processing.
 // Connects to a LTO node API
+
 module.exports = function (blockQueue) {
 
     setInterval(function() { 
         collectBlocks()
 
-     }, 2000);
+     }, 3000);
 
     async function collectBlocks() {
         try {

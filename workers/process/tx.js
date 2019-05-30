@@ -4,7 +4,7 @@
 
 'use strict'
 
-const db = require('../utils/utils').knex
+const db = require('../../utils/utils').knex
 const moment = require('moment')
 
 module.exports = function (txQueue) {
@@ -70,7 +70,7 @@ module.exports = function (txQueue) {
                         })    
                     }
 
-                    console.log('[Tx] [' + msg.properties.correlationId + '] [' + tx.id + '] collected' + ' (' + secs + ')')
+                    console.log('[Tx] [' + tx.id + '] processed' + ' (' + secs + ')')
                 })    
             }
             
@@ -82,7 +82,7 @@ module.exports = function (txQueue) {
             // Acknowledge the job, to avoid it going back to the queue - read message at start
             // processBlock.ack(msg)
             console.log(err)
-            console.log('[Process Tx] [' + msg.properties.correlationId + '] Error: ' + err.toString())
+            console.log('[Process Tx] Error: ' + err.toString())
         }
     }
 }

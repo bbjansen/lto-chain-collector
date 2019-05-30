@@ -3,7 +3,7 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
-const db = require('../utils/utils').knex
+const db = require('../../utils/utils').knex
 const axios = require('axios')
 
 setInterval(function() { 
