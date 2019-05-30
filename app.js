@@ -1,4 +1,4 @@
-// Copyright (c) 2018, Fexra
+// Copyright (c) 2018-2019, BB Jansen
 //
 // Please see the included LICENSE file for more information.
 'use strict'
@@ -11,9 +11,13 @@ const Helmet = require('helmet')
 const Compression = require('compression')
 const cors = require('cors')
 const logger = require('morgan')
+const rabbitMQ = require('./utils/rabbitmq')
 
 // Setup DB if not exist
 require('./utils/db/schema')
+
+// Initialize Workers
+initWorkers()
 
 app.use(function (req, res, next) {
   res.locals.session = req.session
@@ -45,16 +49,19 @@ app.use('/address', require('./routes/address'))
 app.use('/peer', require('./routes/peer'))
 app.use('/stats', require('./routes/stats'))
 
-// Workers
-require('./workers/collectAll')
-require('./workers/confirmBlocks')
-require('./workers/confirmTx')
-require('./workers/collectAddresses')
-require('./workers/scanAddresses.js')
-require('./workers/collectPeers.js')
 
+// rabbitMQ workers
+async function initWorkers () {
+  const blockQueue = await rabbitMQ('blockQueue')
+  const txQueue = await rabbitMQ('txQueue')
 
-// error handler
+  require('./workers/collectBlock')(blockQueue)
+  require('./workers/processBlock')(blockQueue, txQueue)
+  require('./workers/processTx')(txQueue)
+
+}
+
+// Error Handling
 app.use(function onError (err, req, res, next) {
   res.locals.error = process.env.DEBUG == true ? err : {}
   res.statusCode = err.status || 500

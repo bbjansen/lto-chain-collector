@@ -28,8 +28,13 @@ APP_PORT=8012
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=user
-DB_PASS=password
-DB_NAME=database
+DB_PASS=pass
+DB_NAME=db
+
+RABBITMQ_HOST=localhost
+RABBITMQ_USER=user
+RABBITMQ_PASS=pass
+
 
 NODE_IP=192.168.1.1
 
