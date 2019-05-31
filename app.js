@@ -54,16 +54,15 @@ app.use('/stats', require('./routes/stats'))
 async function initWorkers () {
   const blockQueue = await rabbitMQ('blockQueue')
   const txQueue = await rabbitMQ('txQueue')
+  const confirmQueue = await rabbitMQ('confirmQueue')
 
-  require('./workers/collect/block')(blockQueue)
-    require('./workers/collect/address')()
-
+  require('./workers/collect/block')(blockQueue, confirmQueue)
+  //require('./workers/collect/address')()
 
   require('./workers/process/block')(blockQueue, txQueue)
   require('./workers/process/tx')(txQueue)
 
-
-
+  require('./workers/confirm/block')(confirmQueue)
 }
 
 // Error Handling

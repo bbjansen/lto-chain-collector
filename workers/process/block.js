@@ -18,6 +18,7 @@ module.exports = function (blockQueue, txQueue) {
             const secs = msg.content.toString().split('.').length - 1
             const block = JSON.parse(msg.content.toString())
 
+            console.log(`count: ${block.transactions.length}`)
 
             // Check if block hasn't been inserted yet
             const checkBlock = await db('blocks')
@@ -26,7 +27,6 @@ module.exports = function (blockQueue, txQueue) {
 
             if(checkBlock[0].count === 0) {
 
-    
                 // Store block
                 await db('blocks').insert({
                     index: block.height,
@@ -48,7 +48,6 @@ module.exports = function (blockQueue, txQueue) {
                     signature: block['nxt-consensus']['generation-signature']
                 }) 
                 
-
                 // Store block feature
                 if(block.features) {
                     block.features.map(async (feature) => {
@@ -60,7 +59,7 @@ module.exports = function (blockQueue, txQueue) {
                 }
 
                 // Add each block to the queue for processing
-                txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block)), {
+                txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block.height)), {
                     correlationId: UUID()
                 })
 

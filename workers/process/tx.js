@@ -6,15 +6,30 @@
 
 const db = require('../../utils/utils').knex
 const moment = require('moment')
+const axios = require('axios')
 
 // Consumes all items in tx queue
 module.exports = function (txQueue) {
-    txQueue.consume('txQueue', processTx)
+
+    // Set a 2 minute timer as the block is still being filled.
+    setTimeout(function(){ 
+        txQueue.consume('txQueue', processTx)
+
+    }, 120000);
 
     async function processTx (msg) {
         try {
             const secs = msg.content.toString().split('.').length - 1
-            const block = JSON.parse(msg.content.toString())
+            const index = JSON.parse(msg.content.toString())
+            
+            var block = await axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + index)
+            block = block.data
+
+             // Store block
+             await db('blocks').update({
+                count: block.transactionCount,
+            })
+            .where('index', block.height)
 
             // Store block transactions 
             if(block.transactionCount >= 1) {

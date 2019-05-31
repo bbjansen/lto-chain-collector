@@ -5,11 +5,6 @@
 'use strict'
 const db = require('../../utils/utils').knex
 const axios = require('axios')
-const moment = require('moment')
-
-setInterval(function() { 
-  confirmBlocks()
-}, process.env.INTERVAL_CONFIRM_BLOCKS)
 
 // Takes all unconfirmed blocks from the DB and checks if 90 minutes has
 // passed (lto network orphan interval). If 90 mintes has passed, it looks
@@ -17,43 +12,31 @@ setInterval(function() {
 // data. If it does, it means it must be valid.
 
 
-async function confirmBlocks() {
-  try {
+module.exports = function (confirmQueue) {
+  confirmQueue.consume('confirmQueue', confirmBlock)
 
-    const blocks = await db('blocks')
-    .select('index', 'signature', 'timestamp')
-    .where('confirmed', false)
-    .limit(process.env.BATCH_CONFIRM_BLOCKS)
+    async function confirmBlock (msg) {
+      try {
+        const secs = msg.content.toString().split('.').length - 1
+        const block = JSON.parse(msg.content.toString())
+        
+        const check = await axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + block.height)
 
-    blocks.map(async (block) => {
-
-      let duration = moment.duration(moment().diff(moment(block.timestamp))).asMinutes()
-
-      if(duration >= 90) {
-
-        // Timeout
-        setTimeout(async () => {
-          axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + block.index)
-          .then(b => {
-            // Validate signature
-            if(b.data.signature === block.signature) {
-              return db('blocks').update({
-                confirmed: true
-              })
-              .where('index', block.index)
-              .then(d => {
-                console.log('[Block] [' + block.index + '] confirmed')
-              })
-            }
+        // Validate signature
+        if(check.data.signature === block.signature) {
+          await db('blocks').update({
+            confirmed: true
           })
-          .catch(err => {
-            console.log('[Block] [' + block.index + '] orphaned')
-          })
-         }, process.env.TIMEOUT)
+          .where('index', block.height)
+          
+          console.log('[Block] [' + block.height + '] confirmed' + ' (' + secs + ')')
+        }
+
+        // Acknowledge
+        confirmQueue.ack(msg)
       }
-    })
-  }
-  catch(err) {
-    console.log(err)
+    catch(err) {
+      console.log(err)
+    }
   }
 }

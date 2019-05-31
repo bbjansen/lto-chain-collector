@@ -11,7 +11,7 @@ const UUID = require('uuid/v4')
 // Collect newly produced blocks and sends them to the queue for internal processing.
 // Connects to a LTO node API
 
-module.exports = function (blockQueue) {
+module.exports = function (blockQueue, confirmQueue) {
 
     setInterval(function() { 
         collectBlocks()
@@ -75,13 +75,19 @@ module.exports = function (blockQueue) {
 
             // Get Blocks
             const blocks = await axios.get('https://' + process.env.NODE_IP + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex)
-            
             // Process blocks
             blocks.data.map(async (block) => {
+
                 // Add each block to the queue for processing
                 blockQueue.sendToQueue('blockQueue', new Buffer(JSON.stringify(block)), {
                     correlationId: UUID()
                 })
+
+                // Add each block to the confirm queue for processing with a delay of 90 min
+                confirmQueue.sendToQueue('confirmQueue', new Buffer(JSON.stringify(block)), {
+                    correlationId: UUID(),
+                    headers: { 'x-delay': 1000*60*90 }
+                })   
             })
         }
         catch(err) {

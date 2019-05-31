@@ -19,13 +19,11 @@ module.exports = function () {
       // Get all recorded recipients that are not present in the address table
       const recipient = await db('transactions')
       .select('recipient as address')
-      .limit(process.env.BATCH_COLLECT_ADDRESS)
       .whereNotIn(['recipient'], db.select('address').from('addresses'))
 
       // Get all recorded sender that are not present in the address table
       const sender = await db('transactions')
       .select('sender as address')
-      .limit(process.env.BATCH_COLLECT_ADDRESS)
       .whereNotIn(['sender'], db.select('address').from('addresses'))
 
       const addresses = recipient.concat(sender)
