@@ -67,13 +67,13 @@ module.exports = function (blockQueue, txQueue) {
             }
 
             // Acknowledge
-            blockQueue.ack(msg)
+            await blockQueue.ack(msg)
          
         }
         catch (err) {
             // Acknowledge the job, to avoid it going back to the queue - read message at start
             // processBlock.ack(msg)
-            console.log('[Process Block]: ' + err.toString())
+            console.log('[ Block]: ' + err.toString())
         }
     }
 }

@@ -38,7 +38,7 @@ module.exports = function () {
       })
     }
     catch(err) {
-      console.log(err)
+      console.log('[Address]: ' + err.toString())
     }
   }
 }

@@ -33,7 +33,7 @@ module.exports = function () {
         // Timeout
         setTimeout(async () => {
           // Get address current balance
-          const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + a.address)
+          const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + a.address)
 
           await db('addresses').update({
             regular: balances.data.regular / 100000000,

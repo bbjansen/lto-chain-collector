@@ -26,7 +26,7 @@ module.exports = function (blockQueue, confirmQueue) {
             let blockCount = 0
 
             // Grab the network height and last collected block index
-            lastIndex = await axios.get('https://' + process.env.NODE_IP + '/blocks/height')
+            lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/height')
 
             blockIndex = await db('blocks')
             .select('index')
@@ -80,9 +80,10 @@ module.exports = function (blockQueue, confirmQueue) {
             const endIndex = (blockIndex + blockCount)
 
             // Get Blocks
-            const blocks = await axios.get('https://' + process.env.NODE_IP + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex)
+            const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex)
+           
             // Process blocks
-            blocks.data.map(async (block) => {
+            blocks.data.forEach(block => {
 
                 // Add each block to the queue for processing
                 blockQueue.sendToQueue('blockQueue', new Buffer(JSON.stringify(block)), {
@@ -97,7 +98,7 @@ module.exports = function (blockQueue, confirmQueue) {
             })
         }
         catch(err) {
-            console.log(err)
+            console.log('[Block]: ' + err.toString())
         }
     }
 }

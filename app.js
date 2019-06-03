@@ -14,14 +14,17 @@ init()
 // rabbitMQ workers
 async function init () {
   const blockQueue = await rabbitMQ('blockQueue')
+  const peerQueue = await rabbitMQ('peerQueue')
   const txQueue = await rabbitMQ('txQueue')
   const confirmQueue = await rabbitMQ('confirmQueue')
 
   require('./workers/collect/block')(blockQueue, confirmQueue)
   //require('./workers/collect/address')()
+  require('./workers/collect/peer')(peerQueue)
 
   require('./workers/process/block')(blockQueue, txQueue)
   require('./workers/process/tx')(txQueue)
+  require('./workers/process/peer')(peerQueue)
 
   require('./workers/confirm/block')(confirmQueue)
 }

@@ -20,7 +20,7 @@ module.exports = function (confirmQueue) {
         const secs = msg.content.toString().split('.').length - 1
         const block = JSON.parse(msg.content.toString())
         
-        const check = await axios.get('https://' + process.env.NODE_IP + '/blocks/at/' + block.height)
+        const check = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/at/' + block.height)
 
         // Validate signature
         if(check.data.signature === block.signature) {
