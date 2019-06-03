@@ -15,7 +15,7 @@ module.exports = function (addressQueue) {
   cron.schedule('*/30 * * * *', () => {
     collectAddress()
   })
-  collectAddress()
+
   async function collectAddress() {
     try {
 
@@ -33,22 +33,18 @@ module.exports = function (addressQueue) {
       .whereNotNull('sender')
       .groupBy('sender')
 
-      // Symmetric difference
-      const addresses = recipient
-      .filter(x => !sender.includes(x))
-      .concat(sender.filter(x => !recipient.includes(x)))
-
+      // Combine and remove duplicates
+      let addresses = recipient.concat(sender)
+      addresses = [...new Set(addresses)]
 
       addresses.map(async (v) => {
-
         // Store address
-        //await db('addresses').insert({
-        //  address: v.address
-        //})
+        await db('addresses').insert({
+          address: v.address
+        })
 
         // Send address to queue with a 10 minute delay
         // Requires rabbitMQ delay message plugin
-        
         addressQueue.publish('delayed', 'address', new Buffer(JSON.stringify(v.address)), {
           correlationId: UUID(),
           headers: { 'x-delay': 1000*60*10 }

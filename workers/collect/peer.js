@@ -39,7 +39,7 @@ module.exports = function (peerQueue) {
      
       // push self
       peers.push({
-        address: '/' + process.env.NODE_IP + ':' + p(process.env.NODE_PORT - 1),
+        address: '/' + process.env.NODE_IP + ':' + (process.env.NODE_PORT - 1),
         declaredAddress: '/' + process.env.NODE_IP + ':' + (process.env.NODE_PORT - 1),
         peerName: process.env.NODE_NAME,
         peerNonce: 0,
@@ -47,7 +47,6 @@ module.exports = function (peerQueue) {
         applicationVersion: '1.0.3'
       })
 
-     // console.log(peers)
       // Add each peer to the queue for processing
       peers.forEach(peer => {
         peerQueue.sendToQueue('peerQueue', new Buffer(JSON.stringify(peer)), {

@@ -11,7 +11,6 @@ require('./utils/db/schema')
 // Initialize Workers
 init()
 
-// rabbitMQ workers
 async function init () {
   // Create Queues
   const blockQueue = await rabbitMQ('blockQueue')
@@ -43,5 +42,4 @@ async function init () {
 
   require('./workers/confirm/block')(confirmQueue)
   require('./workers/confirm/address')(addressQueue)
-
 }
