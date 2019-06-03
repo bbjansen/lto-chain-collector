@@ -4,4 +4,4 @@
 require('dotenv').config()
 require('../app')
 
-console.log(`Starting LTO Chain Cache Service`)
+console.log(`Starting LTO Chain Cache Collector`)
