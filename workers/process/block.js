@@ -10,7 +10,6 @@ const UUID = require('uuid/v4')
 
 // Consumes all items in block queue
 module.exports = function (blockQueue, txQueue) {
-
     blockQueue.consume('blockQueue', processBlock)
 
     async function processBlock (msg) {
@@ -18,8 +17,7 @@ module.exports = function (blockQueue, txQueue) {
             const secs = msg.content.toString().split('.').length - 1
             const block = JSON.parse(msg.content.toString())
 
-            console.log(`count: ${block.transactions.length}`)
-
+    
             // Check if block hasn't been inserted yet
             const checkBlock = await db('blocks')
             .count('* as count')
@@ -59,7 +57,7 @@ module.exports = function (blockQueue, txQueue) {
                 }
 
                 // Add each block to the queue for processing
-                txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block.height)), {
+                txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block)), {
                     correlationId: UUID()
                 })
 
@@ -76,7 +74,7 @@ module.exports = function (blockQueue, txQueue) {
         catch (err) {
             // Acknowledge the job, to avoid it going back to the queue - read message at start
             // processBlock.ack(msg)
-            console.log('[Process Block] Error: ' + err.toString())
+            console.log('[Process Block]: ' + err.toString())
         }
     }
 }

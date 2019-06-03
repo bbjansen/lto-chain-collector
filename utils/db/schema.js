@@ -117,10 +117,10 @@ db.schema.hasTable('addresses').then(function (exists) {
       table.string('address').unique().primary().notNullable()
       table.string('label')
       table.string('url')
-      table.decimal('regular', [15, 9]).notNullable()
-      table.decimal('generating', [15, 9]).notNullable()
-      table.decimal('available', [15, 9]).notNullable()
-      table.decimal('effective', [15, 9]).notNullable()
+      table.decimal('regular', [15, 9]).
+      table.decimal('generating', [15, 9])
+      table.decimal('available', [15, 9])
+      table.decimal('effective', [15, 9])
       table.datetime('updated').defaultTo(db.fn.now())
     })
   }

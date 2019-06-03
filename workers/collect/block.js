@@ -32,7 +32,7 @@ module.exports = function (blockQueue, confirmQueue) {
             .select('index')
             .orderBy('index', 'desc')
             .limit(1)
-
+            
             // Format
             lastIndex = lastIndex.data.height
 
@@ -45,8 +45,14 @@ module.exports = function (blockQueue, confirmQueue) {
             //Calculate how many blocks we are behind
             const heightDiff = lastIndex - blockIndex
 
-            // Check we are behind, if not halt!
-            if(blockIndex >= lastIndex || heightDiff === 0) {
+            // Check we are behind (n-1), if not halt.
+            // Reason for n-1 is because when a newly produced block
+            // is announced to the network, it may not contain all
+            // final transacstions yet. For now ignore the latest block
+            // In future it would be nice to report the latest block,
+            // and update its tx count when processing n + 1 block.
+        
+            if(blockIndex >= lastIndex || heightDiff <= 1) {
                 throw('[Block] reached top')
             }
 

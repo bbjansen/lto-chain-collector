@@ -2,7 +2,6 @@
 //
 // Please see the included LICENSE file for more information.
 'use strict'
-
 // Set Express App
 const express = require('express')
 const app = express()
@@ -12,6 +11,7 @@ const Compression = require('compression')
 const cors = require('cors')
 const logger = require('morgan')
 const rabbitMQ = require('./utils/rabbitmq')
+
 
 // Setup DB if not exist
 require('./utils/db/schema')

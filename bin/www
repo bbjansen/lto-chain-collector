@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 require('dotenv').config()
+
 const app = require('../app')
 const debug = require('debug')('engine:server')
 const http = require('http')
@@ -71,5 +72,6 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port
-  debug('Listening on ' + bind)
+  console.log(`Starting LTO Chain Cache Service`)
+  console.log('Listening on ' + bind)
 }

@@ -18,7 +18,6 @@ const knex = module.exports = require('knex')({
   pool: {
     min: 2,
     max: 100
-    
   }
 })
 
