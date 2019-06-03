@@ -4,12 +4,10 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 ## Requirements
 - Node.js v8+
 - [knex.js](http://knexjs.org) supported database (pg, sqlite3, mysql, mysql2, oracle, mssql)
-
+- [LTO Chain Cache API](https://github.com/fexra/lto-chain-cache-api)
 ## .env example
 
 ```
-APP_PORT=8012
-
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=user
@@ -27,5 +25,4 @@ NODE_PORT=6869
 
 COLLECT_BLOCKS=10000
 TIMEOUT=10000
-
 ```
