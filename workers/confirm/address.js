@@ -16,7 +16,7 @@ module.exports = function (addressQueue) {
     try {
       const secs = msg.content.toString().split('.').length - 1
       const address = JSON.parse(msg.content.toString())
-      
+
       // Get Balance
       const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
         timeout: process.env.TIMEOUT
@@ -30,20 +30,19 @@ module.exports = function (addressQueue) {
         effective: balances.data.effective / 100000000,
         updated: moment().format('YYYY-MM-DD HH:mm:ss')
       })
-      .where('address', address)
+        .where('address', address)
 
       // Send back to queue
       addressQueue.publish('delayed', 'address', new Buffer(JSON.stringify(address)), {
         correlationId: UUID(),
-        headers: { 'x-delay': 1000*60*10 }
+        headers: { 'x-delay': 1000 * 60 * 10 }
       })
 
       // Ack
       addressQueue.ack(msg)
 
       console.log('[Address] [' + address + '] updated' + ' (' + secs + ')')
-    }
-    catch(err) {
+    } catch (err) {
       console.log(err)
     }
   }

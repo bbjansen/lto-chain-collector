@@ -8,20 +8,18 @@ const cron = require('node-cron')
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
-// Takes all connected to peers from the node API and 
+// Takes all connected to peers from the node API and
 // the stored known peers, and filter any overlap.
 // Send each peer in the new list to queue.
 
 module.exports = function (peerQueue) {
-
-  // Collect peers every hour 
+  // Collect peers every hour
   cron.schedule('0 * * * *', () => {
     collectPeers()
   })
 
-  async function collectPeers() {
+  async function collectPeers () {
     try {
-
       // Get all node peers
       const getPeers = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/peers/connected', {
         timeout: process.env.TIMEOUT
@@ -29,14 +27,14 @@ module.exports = function (peerQueue) {
 
       // Get all logged peers
       const knownPeers = await db('peers')
-      .select('address', 'declared as declaredAddress', 'peerName', 'nonce as peerNonce', 'appName as applicationName', 'version as applicationVersion')
+        .select('address', 'declared as declaredAddress', 'peerName', 'nonce as peerNonce', 'appName as applicationName', 'version as applicationVersion')
 
       // Filter new peers
-      const filteredPeers =  getPeers.data.peers.filter(x => !knownPeers.includes(x));
+      const filteredPeers = getPeers.data.peers.filter(x => !knownPeers.includes(x))
 
       // combine newPeers with filteredPeers
       let peers = getPeers.data.peers.concat(filteredPeers)
-     
+
       // push self
       peers.push({
         address: '/' + process.env.NODE_IP + ':' + (process.env.NODE_PORT - 1),
@@ -53,8 +51,7 @@ module.exports = function (peerQueue) {
           correlationId: UUID()
         })
       })
-    }
-    catch(err) {
+    } catch (err) {
       console.log('[Peer]: ' + err.toString())
     }
   }

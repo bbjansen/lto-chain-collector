@@ -9,7 +9,7 @@ const db = require('../utils').knex
 db.schema.hasTable('blocks').then(function (exists) {
   if (!exists) {
     console.log('[DB] Table `blocks` created')
-    
+
     db.schema.createTable('blocks', function (table) {
       table.integer('index').unique().notNullable()
       table.string('reference').notNullable()
@@ -26,7 +26,6 @@ db.schema.hasTable('blocks').then(function (exists) {
   }
 })
 
-
 // Create 'consensus' table if it does not exist
 db.schema.hasTable('consensus').then(function (exists) {
   if (!exists) {
@@ -40,7 +39,6 @@ db.schema.hasTable('consensus').then(function (exists) {
   }
 })
 
-
 // Create 'features' table if it does not exist
 db.schema.hasTable('features').then(function (exists) {
   if (!exists) {
@@ -53,7 +51,6 @@ db.schema.hasTable('features').then(function (exists) {
     })
   }
 })
-
 
 // Create 'transactions' table if it does not exist
 db.schema.hasTable('transactions').then(function (exists) {
@@ -80,7 +77,6 @@ db.schema.hasTable('transactions').then(function (exists) {
   }
 })
 
-
 // Create 'transfers' table if it does not exist
 db.schema.hasTable('transfers').then(function (exists) {
   if (!exists) {
@@ -95,7 +91,6 @@ db.schema.hasTable('transfers').then(function (exists) {
   }
 })
 
-
 // Create 'proofs' table if it does not exist
 db.schema.hasTable('proofs').then(function (exists) {
   if (!exists) {
@@ -109,7 +104,6 @@ db.schema.hasTable('proofs').then(function (exists) {
   }
 })
 
-
 // Create 'anchors' table if it does not exist
 db.schema.hasTable('anchors').then(function (exists) {
   if (!exists) {
@@ -122,7 +116,6 @@ db.schema.hasTable('anchors').then(function (exists) {
     })
   }
 })
-
 
 // Create 'addresses' table if it does not exist
 db.schema.hasTable('addresses').then(function (exists) {

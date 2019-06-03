@@ -20,7 +20,7 @@ async function init () {
   const peerQueue = await rabbitMQ('peerQueue')
 
   // Create delayed message exchange
-  addressQueue.assertExchange('delayed', 'x-delayed-message', { 
+  addressQueue.assertExchange('delayed', 'x-delayed-message', {
     autoDelete: false,
     durable: true,
     passive: true,
@@ -28,7 +28,7 @@ async function init () {
   })
 
   // Bind queue with delayed message exchange
-  addressQueue.bindQueue('addressQueue', 'delayed' ,'address');
+  addressQueue.bindQueue('addressQueue', 'delayed', 'address')
 
   // Load producers and workers
   require('./workers/collect/block')(blockQueue, confirmQueue)

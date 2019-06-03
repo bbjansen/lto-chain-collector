@@ -8,28 +8,26 @@ const db = require('../utils/utils').knex
 
 calculateAmounts()
 
-async function calculateAmounts() {
-    try {
+async function calculateAmounts () {
+  try {
+    // Select Mass Tx and calculate sum
+    const txns = await db('transactions')
+      .leftJoin('transfers', 'transactions.id', 'transfers.tid')
+      .select('transactions.id')
+      .sum('transfers.amount as sum')
+      .where('type', 11)
+      .groupBy('transactions.id')
 
-        // Select Mass Tx and calculate sum
-        const txns = await db('transactions')
-        .leftJoin('transfers', 'transactions.id', 'transfers.tid')
-        .select('transactions.id')
-        .sum('transfers.amount as sum')
-        .where('type', 11)
-        .groupBy('transactions.id')
-
-        // Update with amount
-        txns.map(async (tx) => {
-            await db('transactions')
-            .update({
-                amount: tx.sum || 0
-            })
-            .where('id', tx.id)
-            console.log('[Tx] [' + tx.id + '] updated with an amount of ' + tx.sum + '.')
+    // Update with amount
+    txns.map(async (tx) => {
+      await db('transactions')
+        .update({
+          amount: tx.sum || 0
         })
-    }
-    catch(err) {
-        console.log(err)
-    }
+        .where('id', tx.id)
+      console.log('[Tx] [' + tx.id + '] updated with an amount of ' + tx.sum + '.')
+    })
+  } catch (err) {
+    console.log(err)
+  }
 }

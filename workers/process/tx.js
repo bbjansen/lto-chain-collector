@@ -9,79 +9,75 @@ const moment = require('moment')
 
 // Consumes all items in tx queue
 module.exports = function (txQueue) {
+  txQueue.consume('txQueue', processTx)
 
-    txQueue.consume('txQueue', processTx)
+  async function processTx (msg) {
+    try {
+      const secs = msg.content.toString().split('.').length - 1
+      const block = JSON.parse(msg.content.toString())
 
-    async function processTx (msg) {
-        try {
-            const secs = msg.content.toString().split('.').length - 1
-            const block = JSON.parse(msg.content.toString())
+      // Store block transactions
+      if (block.transactionCount >= 1) {
+        block.transactions.map(async (tx) => {
+          // Store Tx
+          await db('transactions').insert({
+            id: tx.id,
+            type: tx.type,
+            block: block.height,
+            recipient: tx.recipient,
+            sender: tx.sender,
+            senderPublicKey: tx.senderPublicKey,
+            amount: (tx.amount / 100000000) || (tx.totalAmount / 100000000) || null,
+            fee: tx.fee / 100000000,
+            signature: tx.signature,
+            attachment: tx.attachment,
+            timestamp: tx.timestamp,
+            datetime: moment(tx.timestamp).format('YYYY-MM-DD HH:mm:ss'),
+            version: tx.version,
+            leaseId: tx.leaseId
+          })
 
-                // Store block transactions 
-                if(block.transactionCount >= 1) {
-                    block.transactions.map(async (tx) => {
+          // Store Tx Proofs
+          if (tx.proofs) {
+            tx.proofs.map(async (proof) => {
+              await db('proofs').insert({
+                tid: tx.id,
+                proof: proof
+              })
+            })
+          }
 
-                        // Store Tx
-                        await db('transactions').insert({
-                            id: tx.id,
-                            type: tx.type,
-                            block: block.height,
-                            recipient: tx.recipient,
-                            sender: tx.sender,
-                            senderPublicKey: tx.senderPublicKey,
-                            amount: (tx.amount / 100000000) || (tx.totalAmount / 100000000) || null,
-                            fee: tx.fee / 100000000,
-                            signature: tx.signature,
-                            attachment: tx.attachment,
-                            timestamp: tx.timestamp,
-                            datetime: moment(tx.timestamp).format('YYYY-MM-DD HH:mm:ss'),
-                            version: tx.version,
-                            leaseId: tx.leaseId
-                        })
+          // Store Tx Anchors
+          if (tx.anchors) {
+            tx.anchors.map(async (anchor) => {
+              await db('anchors').insert({
+                tid: tx.id,
+                anchor: anchor
+              })
+            })
+          }
 
-                        // Store Tx Proofs
-                        if(tx.proofs) {
-                            tx.proofs.map(async (proof) => {
-                                await db('proofs').insert({
-                                    tid: tx.id,
-                                    proof: proof
-                                })
-                            })
-                        }
+          // Store Tx Transfers
+          if (tx.transfers) {
+            tx.transfers.map(async (transfer) => {
+              await db('transfers').insert({
+                tid: tx.id,
+                recipient: transfer.recipient,
+                amount: (transfer.amount / 100000000) || null
+              })
+            })
+          }
 
-                        // Store Tx Anchors
-                        if(tx.anchors) {
-                            tx.anchors.map(async (anchor) => {
-                                await db('anchors').insert({
-                                    tid: tx.id,
-                                    anchor: anchor
-                                })
-                            })
-                        }
+          console.log('[Tx] [' + tx.id + '] processed' + ' (' + secs + ')')
+        })
+      }
 
-                        // Store Tx Transfers
-                        if(tx.transfers) {
-                            tx.transfers.map(async (transfer) => {
-                                await db('transfers').insert({
-                                    tid: tx.id,
-                                    recipient: transfer.recipient,
-                                    amount: (transfer.amount / 100000000) || null
-                                })
-                            })    
-                        }
-
-                        console.log('[Tx] [' + tx.id + '] processed' + ' (' + secs + ')')
-                    })    
-                }
-                
-                // Acknowledge
-                await txQueue.ack(msg)
-         
-        }
-        catch (err) {
-            // Acknowledge the job, to avoid it going back to the queue - read message at start
-            // processBlock.ack(msg)
-            console.log('[ Tx]' + err.toString())
-        }
+      // Acknowledge
+      await txQueue.ack(msg)
+    } catch (err) {
+      // Acknowledge the job, to avoid it going back to the queue - read message at start
+      // processBlock.ack(msg)
+      console.log('[ Tx]' + err.toString())
     }
+  }
 }
