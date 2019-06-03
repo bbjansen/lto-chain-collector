@@ -36,10 +36,10 @@ module.exports = function () {
           const balances = await axios.get('https://' + process.env.NODE_IP + '/addresses/balance/details/' + a.address)
 
           await db('addresses').update({
-            regular: balances.data.regular / process.env.ATOMIC,
-            generating: balances.data.generating / process.env.ATOMIC,
-            available: balances.data.available / process.env.ATOMIC,
-            effective: balances.data.effective / process.env.ATOMIC,
+            regular: balances.data.regular / 100000000,
+            generating: balances.data.generating / 100000000,
+            available: balances.data.available / 100000000,
+            effective: balances.data.effective / 100000000,
             updated: moment().format('YYYY-MM-DD HH:mm:ss')
           })
           .where('address', a.address)

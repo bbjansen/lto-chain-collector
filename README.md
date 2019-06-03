@@ -1,24 +1,9 @@
 # LTO Chain Cache
-This node.js project caches the LTO network chain and stores it into a [knex.js]('https://knexjs.org) supported database. It comes with an API endpoint that allows you to query the database.
+This node.js project caches the LTO network chain and stores it into a [knex.js]('https://knexjs.org) supported database.
 
 ## Requirements
 - Node.js v8+
 - Knex.js supported database (pg, sqlite3, mysql, mysql2, oracle, mssql)
-- NGINX / Apache
-
-## API Routes
-- `/block/`
-- `/consensus/`
-- `/feature/`
-- `/proof/`
-- `/transaction/`
-- `/transfer/`
-- `/anchor/`
-- `/lease/`
-- `/generator/`
-- `/address/`
-- `/peer/`
-- `/stats/`
 
 ## .env example
 
@@ -38,6 +23,9 @@ RABBITMQ_PASS=pass
 
 NODE_IP=192.168.1.1
 
-ATOMIC=100000000
-TIMEOUT=2000
+
+COLLECT_BLOCKS=10000
+INTERVAL_COLLECT_ADDRESS=30000
+INTERVAL_SCAN_ADDRESS=60000
+
 ```

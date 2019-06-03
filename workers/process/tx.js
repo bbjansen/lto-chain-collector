@@ -29,8 +29,8 @@ module.exports = function (txQueue) {
                             recipient: tx.recipient,
                             sender: tx.sender,
                             senderPublicKey: tx.senderPublicKey,
-                            amount: (tx.amount / process.env.ATOMIC) || (tx.totalAmount / process.env.ATOMIC) || null,
-                            fee: tx.fee / process.env.ATOMIC,
+                            amount: (tx.amount / 100000000) || (tx.totalAmount / 100000000) || null,
+                            fee: tx.fee / 100000000,
                             signature: tx.signature,
                             attachment: tx.attachment,
                             timestamp: tx.timestamp,
@@ -65,7 +65,7 @@ module.exports = function (txQueue) {
                                 await db('transfers').insert({
                                     tid: tx.id,
                                     recipient: transfer.recipient,
-                                    amount: (transfer.amount / process.env.ATOMIC) || null
+                                    amount: (transfer.amount / 100000000) || null
                                 })
                             })    
                         }

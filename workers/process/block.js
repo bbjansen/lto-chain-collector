@@ -17,7 +17,6 @@ module.exports = function (blockQueue, txQueue) {
             const secs = msg.content.toString().split('.').length - 1
             const block = JSON.parse(msg.content.toString())
 
-    
             // Check if block hasn't been inserted yet
             const checkBlock = await db('blocks')
             .count('* as count')
@@ -33,7 +32,7 @@ module.exports = function (blockQueue, txQueue) {
                     signature: block.signature,
                     size: block.blocksize || 0,
                     count: block.transactionCount || 0,
-                    fee: block.fee / process.env.ATOMIC || 0,
+                    fee: block.fee / 100000000 || 0,
                     version: block.version || 0,
                     timestamp: block.timestamp,
                     datetime: moment(block.timestamp).format('YYYY-MM-DD HH:mm:ss')
