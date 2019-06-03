@@ -53,7 +53,7 @@ module.exports = function (blockQueue, confirmQueue) {
             // and update its tx count when processing n + 1 block.
         
             if(blockIndex >= lastIndex || heightDiff <= 1) {
-                throw('[Block] reached top')
+                throw('reached top')
             }
 
             // Calculate # of blocks to scan
@@ -98,7 +98,7 @@ module.exports = function (blockQueue, confirmQueue) {
             })
         }
         catch(err) {
-            console.log('[Block]: ' + err.toString())
+            console.log('[Block] ' + err.toString())
         }
     }
 }
