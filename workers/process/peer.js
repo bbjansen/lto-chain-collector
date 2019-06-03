@@ -106,7 +106,7 @@ module.exports = function (peerQueue) {
 
             // Log Address
             axios.get('http://' + apiAddress + '/addresses', {
-              timeout: 10000
+              timeout: process.env.TIMEOUT
             })
             .then(address => {
               return db('peers').update({

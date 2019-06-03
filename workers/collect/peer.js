@@ -24,7 +24,7 @@ module.exports = function (peerQueue) {
 
       // Get all node peers
       const getPeers = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/peers/connected', {
-        timeout: 10000
+        timeout: process.env.TIMEOUT
       })
 
       // Get all logged peers
