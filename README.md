@@ -3,7 +3,7 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 
 ## Requirements
 - Node.js v8+
-- Knex.js supported database (pg, sqlite3, mysql, mysql2, oracle, mssql)
+- [knex.js](http://knexjs.org) supported database (pg, sqlite3, mysql, mysql2, oracle, mssql)
 
 ## .env example
 
