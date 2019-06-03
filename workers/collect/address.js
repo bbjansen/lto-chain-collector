@@ -4,14 +4,16 @@
 
 'use strict'
 const db = require('../../utils/utils').knex
+const cron = require('node-cron')
 
 // Takes all recipient and sender addresses in recorded transactions
 // and stores them in the addresses table so we can track it
 module.exports = function () {
 
-  setInterval(function() { 
+  // Collect address every hour 
+  cron.schedule('0 * * * *', () => {
     collectAddress()
-  }, process.env.INTERVAL_COLLECT_ADDRESS)
+  })
 
   async function collectAddress() {
     try {
@@ -20,13 +22,20 @@ module.exports = function () {
       const recipient = await db('transactions')
       .select('recipient as address')
       .whereNotIn(['recipient'], db.select('address').from('addresses'))
-
+      .whereNotNull('recipient')
+      .groupBy('recipient')
+      
       // Get all recorded sender that are not present in the address table
       const sender = await db('transactions')
       .select('sender as address')
       .whereNotIn(['sender'], db.select('address').from('addresses'))
+      .whereNotNull('sender')
+      .groupBy('recipient')
 
-      const addresses = recipient.concat(sender)
+      // Symmetric difference
+      const addresses = recipient
+      .filter(x => !sender.includes(x))
+      .concat(sender.filter(x => !recipient.includes(x)));
 
       // Store
       addresses.map(async (v) => {
