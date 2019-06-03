@@ -4,6 +4,7 @@
 
 'use strict'
 const db = require('../../utils/utils').knex
+const cron = require('node-cron')
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
@@ -13,9 +14,10 @@ const UUID = require('uuid/v4')
 
 module.exports = function (peerQueue) {
 
-  setInterval(function() { 
+  // Collect peers every hour 
+  cron.schedule('0 * * * *', () => {
     collectPeers()
-  }, process.env.INTERVAL_COLLECT_PEERS)
+  })
 
   async function collectPeers() {
     try {
