@@ -17,7 +17,6 @@ module.exports = function (peerQueue) {
     collectPeers()
   }, process.env.INTERVAL_COLLECT_PEERS)
 
-  collectPeers()
   async function collectPeers() {
     try {
 
