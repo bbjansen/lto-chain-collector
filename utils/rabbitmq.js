@@ -20,10 +20,26 @@ const createChannel = conn => {
   })
 }
 
-const channelAssertQueue = (channel, queueName) => {
+const assertQueue = (channel, queueName) => {
   return new Promise((resolve, reject) => {
     channel.assertQueue(queueName, { durable: true })
       .then(asserted => resolve(channel))
+      .catch(err => reject(err))
+  })
+}
+
+const assertExchange = (channel, exchangeName, exchangeType, args) => {
+  return new Promise((resolve, reject) => {
+    channel.assertExchange(exchangeName, exchangeType, { args })
+      .then(asserted => resolve(channel))
+      .catch(err => reject(err))
+  })
+}
+
+const bindQueue = (channel, queueName, exchangeName, routingKey) => {
+  return new Promise((resolve, reject) => {
+    channel.bindQueue(queueName, exchangeName, routingKey)
+      .then(binded => resolve(channel))
       .catch(err => reject(err))
   })
 }
@@ -32,10 +48,14 @@ const sendToQueue = (channel, queueName, buffer) => {
   channel.sendToQueue(queueName, buffer)
 }
 
+const publish = (channel, exchangeName, routingKey, buffer) => {
+  channel.publish(exchangeName, routingKey, buffer)
+}
+
 const connection = async (queueName = 'msg.*') => {
   var conn = await connect()
   var channel = await createChannel(conn)
-  var assertedChannelToQueue = await channelAssertQueue(channel, queueName)
+  var assertedChannelToQueue = await assertQueue(channel, queueName)
   return channel
 }
 

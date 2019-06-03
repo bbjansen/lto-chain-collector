@@ -6,11 +6,8 @@
 const db = require('../../utils/utils').knex
 const axios = require('axios')
 
-// Takes all unconfirmed blocks from the DB and checks if 90 minutes has
-// passed (lto network orphan interval). If 90 mintes has passed, it looks
-// the block up against the node to see if it still exists with the same
-// data. If it does, it means it must be valid.
-
+// Processes unconfirmed blocks added in the queue when they got processed.
+// Confirms the block against the node to see if it exists and valid.
 
 module.exports = function (confirmQueue) {
   confirmQueue.consume('confirmQueue', confirmBlock)

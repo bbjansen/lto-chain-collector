@@ -5,16 +5,17 @@
 'use strict'
 const db = require('../../utils/utils').knex
 const cron = require('node-cron')
+const UUID = require('uuid/v4')
 
 // Takes all recipient and sender addresses in recorded transactions
 // and stores them in the addresses table so we can track it
-module.exports = function () {
+module.exports = function (addressQueue) {
 
-  // Collect address every hour 
-  cron.schedule('0 * * * *', () => {
+  // Collect address every 30 minutes 
+  cron.schedule('*/30 * * * *', () => {
     collectAddress()
   })
-
+  collectAddress()
   async function collectAddress() {
     try {
 
@@ -30,17 +31,27 @@ module.exports = function () {
       .select('sender as address')
       .whereNotIn(['sender'], db.select('address').from('addresses'))
       .whereNotNull('sender')
-      .groupBy('recipient')
+      .groupBy('sender')
 
       // Symmetric difference
       const addresses = recipient
       .filter(x => !sender.includes(x))
-      .concat(sender.filter(x => !recipient.includes(x)));
+      .concat(sender.filter(x => !recipient.includes(x)))
 
-      // Store
+
       addresses.map(async (v) => {
-        await db('addresses').insert({
-          address: v.address
+
+        // Store address
+        //await db('addresses').insert({
+        //  address: v.address
+        //})
+
+        // Send address to queue with a 10 minute delay
+        // Requires rabbitMQ delay message plugin
+        
+        addressQueue.publish('delayed', 'address', new Buffer(JSON.stringify(v.address)), {
+          correlationId: UUID(),
+          headers: { 'x-delay': 1000*60*10 }
         })
 
         console.log('[Address] [' + v.address + '] collected')
