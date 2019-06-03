@@ -30,7 +30,6 @@ async function init () {
   // Bind queue with delayed message exchange
   addressQueue.bindQueue('addressQueue', 'delayed' ,'address');
 
-
   // Load producers and workers
   require('./workers/collect/block')(blockQueue, confirmQueue)
   require('./workers/collect/address')(addressQueue)

@@ -103,7 +103,6 @@ module.exports = function (peerQueue) {
               .where('address', p2pAddress)
             })
 
-
             // Log Address
             axios.get('http://' + apiAddress + '/addresses', {
               timeout: process.env.TIMEOUT
@@ -117,7 +116,6 @@ module.exports = function (peerQueue) {
             })
             .catch(err => {
             })
-
 
             console.log('[Peer] [' + p2pAddress + '] added.' + ' (' + secs + ')')
           } // update node
