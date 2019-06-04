@@ -23,10 +23,18 @@ module.exports = function (confirmQueue) {
 
       // Validate signature
       if (check.data.signature === block.signature) {
+
+        // Update block
         await db('blocks').update({
           confirmed: true
         })
-          .where('index', block.height)
+        .where('index', block.height)
+
+        // Update tx belonging to block
+        await db('transactions').update({
+          confirmed: true
+        })
+        .where('block', block.height)
 
         console.log('[Block] [' + block.height + '] confirmed' + ' (' + secs + ')')
       }

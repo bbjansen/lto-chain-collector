@@ -16,9 +16,10 @@ module.exports = function (txQueue) {
       const secs = msg.content.toString().split('.').length - 1
       const block = JSON.parse(msg.content.toString())
 
-      // Store block transactions
+      // If tx: map and store block transactions
       if (block.transactionCount >= 1) {
         block.transactions.map(async (tx) => {
+
           // Store Tx
           await db('transactions').insert({
             id: tx.id,
