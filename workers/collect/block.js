@@ -87,12 +87,12 @@ module.exports = function (blockQueue, confirmQueue) {
       blocks.data.forEach(block => {
         // Add each block to the queue for processing
         blockQueue.sendToQueue('blockQueue', new Buffer(JSON.stringify(block)), {
-          correlationId: UUID()
+          correlationId: UUID(),
         })
 
         // Add each block to the confirm queue for processing with a delay of 90 min
         // requires rabbitMQ delay message plugin
-        confirmQueue.sendToQueue('confirmQueue', new Buffer(JSON.stringify(block)), {
+        confirmQueue.publish('confirmQueue', new Buffer(JSON.stringify(block)), {
           correlationId: UUID(),
           headers: { 'x-delay': 1000 * 60 * 90 }
         })
