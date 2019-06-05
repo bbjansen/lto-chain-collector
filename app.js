@@ -27,7 +27,8 @@ async function init () {
     arguments: { 'x-delayed-type': 'direct' }
   })
 
-  // Bind queue with delayed message exchange
+  // Bind queues with delayed message exchange
+  confirmQueue.bindQueue('confirmQueue', 'delayed', 'block')
   addressQueue.bindQueue('addressQueue', 'delayed', 'address')
 
   // Load producers and workers

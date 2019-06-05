@@ -16,7 +16,8 @@ module.exports = function (confirmQueue) {
     try {
       const secs = msg.content.toString().split('.').length - 1
       const block = JSON.parse(msg.content.toString())
-
+      
+      // Get block data
       const check = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/at/' + block.height, {
         timeout: process.env.TIMEOUT
       })

@@ -10,6 +10,7 @@ const UUID = require('uuid/v4')
 // Takes all recipient and sender addresses in recorded transactions
 // and stores them in the addresses table so we can track it
 module.exports = function (addressQueue) {
+  
   // Collect address every 30 minutes
   cron.schedule('*/30 * * * *', () => {
     collectAddress()
