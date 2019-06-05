@@ -43,7 +43,7 @@ module.exports = function (addressQueue) {
 
       console.log('[Address] [' + address + '] updated' + ' (' + secs + ')')
     } catch (err) {
-      console.error(err)
+      console.error('[Address] ' + err.toString())
     }
   }
 }

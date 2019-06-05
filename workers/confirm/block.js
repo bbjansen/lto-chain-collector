@@ -43,7 +43,7 @@ module.exports = function (confirmQueue) {
       // Acknowledge
       confirmQueue.ack(msg)
     } catch (err) {
-      console.log(err)
+      console.log('[Block] ' + err.toString())
     }
   }
 }
