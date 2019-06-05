@@ -8,7 +8,7 @@ const db = require('../utils').knex
 // Create 'blocks' table if it does not exist
 db.schema.hasTable('blocks').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `blocks` created')
+    console.info('[DB] Table `blocks` created')
 
     db.schema.createTable('blocks', function (table) {
       table.integer('index').unique().notNullable()
@@ -29,7 +29,7 @@ db.schema.hasTable('blocks').then(function (exists) {
 // Create 'consensus' table if it does not exist
 db.schema.hasTable('consensus').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `consensus` created')
+    console.info('[DB] Table `consensus` created')
 
     db.schema.createTable('consensus', function (table) {
       table.integer('index').unique().notNullable()
@@ -42,7 +42,7 @@ db.schema.hasTable('consensus').then(function (exists) {
 // Create 'features' table if it does not exist
 db.schema.hasTable('features').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `features` created')
+    console.info('[DB] Table `features` created')
 
     db.schema.createTable('features', function (table) {
       table.increments('id').primary()
@@ -55,7 +55,7 @@ db.schema.hasTable('features').then(function (exists) {
 // Create 'transactions' table if it does not exist
 db.schema.hasTable('transactions').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `transactions` created')
+    console.info('[DB] Table `transactions` created')
 
     db.schema.createTable('transactions', function (table) {
       table.string('id').unique().primary().notNullable()
@@ -80,7 +80,7 @@ db.schema.hasTable('transactions').then(function (exists) {
 // Create 'transfers' table if it does not exist
 db.schema.hasTable('transfers').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `transfers` created')
+    console.info('[DB] Table `transfers` created')
 
     db.schema.createTable('transfers', function (table) {
       table.increments('id').primary()
@@ -94,7 +94,7 @@ db.schema.hasTable('transfers').then(function (exists) {
 // Create 'proofs' table if it does not exist
 db.schema.hasTable('proofs').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `proofs` created')
+    console.info('[DB] Table `proofs` created')
 
     db.schema.createTable('proofs', function (table) {
       table.increments('id').primary()
@@ -107,7 +107,7 @@ db.schema.hasTable('proofs').then(function (exists) {
 // Create 'anchors' table if it does not exist
 db.schema.hasTable('anchors').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `anchors` created')
+    console.info('[DB] Table `anchors` created')
 
     db.schema.createTable('anchors', function (table) {
       table.increments('id').primary().notNullable()
@@ -120,7 +120,7 @@ db.schema.hasTable('anchors').then(function (exists) {
 // Create 'addresses' table if it does not exist
 db.schema.hasTable('addresses').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `addresses` created')
+    console.info('[DB] Table `addresses` created')
 
     return db.schema.createTable('addresses', function (table) {
       table.string('address').unique().primary().notNullable()
@@ -138,7 +138,7 @@ db.schema.hasTable('addresses').then(function (exists) {
 // Create 'peers' table if it does not exist
 db.schema.hasTable('peers').then(function (exists) {
   if (!exists) {
-    console.log('[DB] Table `blopeerscks` created')
+    console.info('[DB] Table `blopeerscks` created')
 
     db.schema.createTable('peers', function (table) {
       table.string('address').unique().primary()

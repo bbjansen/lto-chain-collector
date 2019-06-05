@@ -185,7 +185,7 @@ module.exports = function (peerQueue) {
     } catch (err) {
       // Acknowledge the job, to avoid it going back to the queue - read message at start
       // processPeer.ack(msg)
-      console.log('[Peer]: ' + err.toString())
+      console.error('[Peer]: ' + err.toString())
     }
   }
 }

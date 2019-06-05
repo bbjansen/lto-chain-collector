@@ -5,6 +5,21 @@
 
 const rabbitMQ = require('./utils/rabbitmq')
 
+// Setup logger
+require('console-stamp')(console, {
+  pattern: 'dd/mm/yyyy HH:MM:ss.l',
+  colors: {
+      stamp: 'green',
+      label: 'white',
+  },
+  extend: {
+    debug: 5,
+    fatal: 0,
+  },
+  include: ['debug', 'log', 'info', 'warn', 'error', 'fatal'],
+  level: 'debug',
+})
+
 // Setup DB if not exist
 require('./utils/db/schema')
 

@@ -28,6 +28,6 @@ async function calculateAmounts () {
       console.log('[Tx] [' + tx.id + '] updated with an amount of ' + tx.sum + '.')
     })
   } catch (err) {
-    console.log(err)
+    console.error(err)
   }
 }

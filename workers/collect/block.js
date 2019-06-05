@@ -52,7 +52,7 @@ module.exports = function (blockQueue, confirmQueue) {
       // and update its tx count when processing n + 1 block.
 
       if (blockIndex >= lastIndex || heightDiff <= 1) {
-        throw ('reached top')
+        return
       }
 
       // Calculate # of blocks to scan
@@ -92,9 +92,9 @@ module.exports = function (blockQueue, confirmQueue) {
 
         // Add each block to the confirm queue for processing with a delay of 90 min
         // requires rabbitMQ delay message plugin
-        confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
+        confirmQueue.publish('delayed', 'address', new Buffer(JSON.stringify(block)), {
           correlationId: UUID(),
-          headers: { 'x-delay': 1000 * 60 * 90 }
+          headers: { 'x-delay': 1000 * 60 * 10 }
         })
 
       })

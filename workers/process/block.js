@@ -61,7 +61,7 @@ module.exports = function (blockQueue, txQueue) {
 
         console.log('[Block] [' + block.height + '] collected' + ' (' + secs + ')')
       } else {
-        console.log('[Block] [' + block.height + '] duplicate' + ' (' + secs + ')')
+        console.warn('[Block] [' + block.height + '] duplicate' + ' (' + secs + ')')
       }
 
       // Acknowledge
@@ -69,7 +69,7 @@ module.exports = function (blockQueue, txQueue) {
     } catch (err) {
       // Acknowledge the job, to avoid it going back to the queue - read message at start
       // processBlock.ack(msg)
-      console.log('[ Block]: ' + err.toString())
+      console.error('[ Block]: ' + err.toString())
     }
   }
 }

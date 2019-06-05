@@ -78,7 +78,7 @@ module.exports = function (txQueue) {
     } catch (err) {
       // Acknowledge the job, to avoid it going back to the queue - read message at start
       // processBlock.ack(msg)
-      console.log('[ Tx]' + err.toString())
+      console.error('[ Tx]' + err.toString())
     }
   }
 }
