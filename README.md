@@ -8,6 +8,7 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 ## .env example
 
 ```
+DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=user

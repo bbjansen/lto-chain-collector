@@ -4,7 +4,7 @@
 'use strict'
 
 const knex = module.exports = require('knex')({
-  client: 'mysql',
+  client: process.env.DB_TYPE,
   // debug: true,
   // timezone: 'UTC',
   connection: {
@@ -13,7 +13,6 @@ const knex = module.exports = require('knex')({
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     charset: 'utf8'
-    // multipleStatements: true
   },
   pool: {
     min: 2,
