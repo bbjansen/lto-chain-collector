@@ -74,22 +74,23 @@ module.exports = function (txQueue, addressQueue) {
               })
             })
           }
-
-          // Update recipient balance
-          if(tx.recipient && tx.recipient.length >= 1) {
-            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(tx.recipient)), {
-              correlationId: UUID()
-            })
-          }
-
-          // Update sender balance (genenis block does not have sender)
-          if(tx.sender && tx.sender.length >= 1) {
-            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(tx.sender)), {
-              correlationId: UUID()
-            })
-          }
-
           console.log('[Tx] [' + tx.id + '] processed' + ' (' + secs + ')')
+        })
+
+        // Create an array with unique addresses from each transaction
+        let uniqueAddresses = new Set()
+        block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
+        block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
+        uniqueAddresses = [...uniqueAddresses]
+        uniqueAddresses.filter(Boolean)
+
+        // Update balances of each address 
+        uniqueAddresses.forEach(address => {
+          if(address) {
+            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
+              correlationId: UUID()
+            })
+          }
         })
       }
 
