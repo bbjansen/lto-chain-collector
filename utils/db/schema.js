@@ -134,28 +134,3 @@ db.schema.hasTable('addresses').then(function (exists) {
     })
   }
 })
-
-// Create 'peers' table if it does not exist
-db.schema.hasTable('peers').then(function (exists) {
-  if (!exists) {
-    console.info('[DB] Table `blopeerscks` created')
-
-    db.schema.createTable('peers', function (table) {
-      table.string('address').unique().primary()
-      table.string('declared').notNullable()
-      table.string('peerName').notNullable()
-      table.integer('nonce').notNullable()
-      table.string('appName').notNullable()
-      table.string('version').notNullable()
-      table.string('country')
-      table.decimal('lat', [10, 8])
-      table.decimal('lng', [11, 8])
-      table.string('generator')
-      table.string('port').defaultTo(false)
-      table.string('api').defaultTo(false)
-      table.string('uptime').defaultTo('------------------------')
-      table.datetime('created').defaultTo(db.fn.now()).notNullable()
-      table.datetime('updated').defaultTo(db.fn.now()).notNullable()
-    })
-  }
-})
