@@ -9,7 +9,7 @@ const moment = require('moment')
 const UUID = require('uuid/v4')
 
 // Consumes all items in block queue
-module.exports = function (blockQueue, txQueue) {
+module.exports = function (blockQueue) {
   blockQueue.consume('blockQueue', processBlock)
 
   async function processBlock (msg) {
@@ -53,11 +53,6 @@ module.exports = function (blockQueue, txQueue) {
             })
           })
         }
-
-        // Add each block to the queue for processing
-        txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block)), {
-          correlationId: UUID()
-        })
 
         console.log('[Block] [' + block.height + '] collected' + ' (' + secs + ')')
       } else {

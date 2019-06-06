@@ -40,10 +40,10 @@ async function init () {
   confirmQueue.bindQueue('confirmQueue', 'delayed', 'block')
 
   // Load producers and workers
-  require('./workers/collect/block')(blockQueue, confirmQueue, addressQueue)
+  require('./workers/collect/block')(blockQueue, confirmQueue, txQueue, addressQueue)
   require('./workers/collect/peer')(peerQueue)
 
-  require('./workers/process/block')(blockQueue, txQueue)
+  require('./workers/process/block')(blockQueue)
   require('./workers/process/tx')(txQueue, addressQueue)
   require('./workers/process/peer')(peerQueue)
 
