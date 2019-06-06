@@ -41,7 +41,6 @@ async function init () {
 
   // Load producers and workers
   require('./workers/collect/block')(blockQueue, confirmQueue, addressQueue)
-  require('./workers/collect/address')(addressQueue)
   require('./workers/collect/peer')(peerQueue)
 
   require('./workers/process/block')(blockQueue, txQueue)
