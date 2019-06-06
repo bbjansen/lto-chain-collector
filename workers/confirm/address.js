@@ -6,7 +6,6 @@
 const db = require('../../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
-const UUID = require('uuid/v4')
 
 // Consumes the address queue to check and update balances
 module.exports = function (addressQueue) {
@@ -31,12 +30,6 @@ module.exports = function (addressQueue) {
         updated: moment().format('YYYY-MM-DD HH:mm:ss')
       })
         .where('address', address)
-
-      // Send back to queue
-      addressQueue.publish('delayed', 'address', new Buffer(JSON.stringify(address)), {
-        correlationId: UUID(),
-        headers: { 'x-delay': 1000 * 60 * 10 }
-      })
 
       // Ack
       addressQueue.ack(msg)
