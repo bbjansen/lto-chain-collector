@@ -39,11 +39,9 @@ async function init () {
   confirmQueue.bindQueue('confirmQueue', 'delayed', 'block')
 
   // Load producers and workers
-  require('./workers/collect/block')(blockQueue, confirmQueue, txQueue, addressQueue)
-
-  require('./workers/process/block')(blockQueue)
-  require('./workers/process/tx')(txQueue, addressQueue)
-
-  require('./workers/confirm/block')(confirmQueue)
-  require('./workers/confirm/address')(addressQueue)
+  require('./workers/collectBlock')(blockQueue, confirmQueue, txQueue, addressQueue)
+  require('./workers/processBlock')(blockQueue)
+  require('./workers/processTx')(txQueue, addressQueue)
+  require('./workers/updateAddress')(addressQueue)
+  require('./workers/verifyBlock')(confirmQueue)
 }

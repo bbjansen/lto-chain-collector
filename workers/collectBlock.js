@@ -4,7 +4,7 @@
 
 'use strict'
 
-const db = require('../../utils/utils').knex
+const db = require('../utils/utils').knex
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
