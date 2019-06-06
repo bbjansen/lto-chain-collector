@@ -6,9 +6,10 @@
 
 const db = require('../../utils/utils').knex
 const moment = require('moment')
+const UUID = require('uuid/v4')
 
 // Consumes all items in tx queue
-module.exports = function (txQueue) {
+module.exports = function (txQueue, addressQueue) {
   txQueue.consume('txQueue', processTx)
 
   async function processTx (msg) {
@@ -66,6 +67,25 @@ module.exports = function (txQueue) {
                 recipient: transfer.recipient,
                 amount: (transfer.amount / 100000000) || null
               })
+
+              // Update recipient balance
+              addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
+                correlationId: UUID()
+              })
+            })
+          }
+
+          // Update recipient balance
+          if(tx.recipient && tx.recipient.length >= 1) {
+            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(tx.recipient)), {
+              correlationId: UUID()
+            })
+          }
+
+          // Update sender balance (genenis block does not have sender)
+          if(tx.sender && tx.sender.length >= 1) {
+            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(tx.sender)), {
+              correlationId: UUID()
             })
           }
 

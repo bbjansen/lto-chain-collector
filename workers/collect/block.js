@@ -11,7 +11,7 @@ const UUID = require('uuid/v4')
 // Collect newly produced blocks and sends them to the queue for internal processing.
 // Connects to a LTO node API
 
-module.exports = function (blockQueue, confirmQueue) {
+module.exports = function (blockQueue, confirmQueue, addressQueue) {
   setInterval(function () {
     collectBlocks()
   }, process.env.COLLECT_BLOCKS)
@@ -95,6 +95,11 @@ module.exports = function (blockQueue, confirmQueue) {
         confirmQueue.publish('delayed', 'address', new Buffer(JSON.stringify(block)), {
           correlationId: UUID(),
           headers: { 'x-delay': 1000 * 60 * 10 }
+        })
+
+        // Update block generator balance
+        addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(block.generator)), {
+          correlationId: UUID(),
         })
       })
     } catch (err) {
