@@ -26,7 +26,6 @@ async function init () {
   const txQueue = await rabbitMQ('txQueue')
   const confirmQueue = await rabbitMQ('confirmQueue')
   const addressQueue = await rabbitMQ('addressQueue')
-  const peerQueue = await rabbitMQ('peerQueue')
 
   // Create delayed message exchange
   confirmQueue.assertExchange('delayed', 'x-delayed-message', {
@@ -41,11 +40,9 @@ async function init () {
 
   // Load producers and workers
   require('./workers/collect/block')(blockQueue, confirmQueue, txQueue, addressQueue)
-  require('./workers/collect/peer')(peerQueue)
 
   require('./workers/process/block')(blockQueue)
   require('./workers/process/tx')(txQueue, addressQueue)
-  require('./workers/process/peer')(peerQueue)
 
   require('./workers/confirm/block')(confirmQueue)
   require('./workers/confirm/address')(addressQueue)
