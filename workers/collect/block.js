@@ -96,7 +96,6 @@ module.exports = function (blockQueue, confirmQueue) {
           correlationId: UUID(),
           headers: { 'x-delay': 1000 * 60 * 10 }
         })
-
       })
     } catch (err) {
       console.log('[Block] ' + err.toString())

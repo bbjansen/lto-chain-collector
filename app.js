@@ -11,13 +11,7 @@ require('console-stamp')(console, {
   colors: {
       stamp: 'green',
       label: 'white',
-  },
-  extend: {
-    debug: 5,
-    fatal: 0,
-  },
-  include: ['debug', 'log', 'info', 'warn', 'error', 'fatal'],
-  level: 'debug',
+  }
 })
 
 // Setup DB if not exist
