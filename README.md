@@ -8,19 +8,21 @@ This node.js project caches the LTO network chain and stores it into a [knex.js]
 ## .env example
 
 ```
+APP_PORT=9000
+
 DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=user
-DB_PASS=pass
-DB_NAME=db
+DB_USER=
+DB_PASS=
+DB_NAME=
 
 RABBITMQ_HOST=localhost
-RABBITMQ_USER=user
-RABBITMQ_PASS=pass
+RABBITMQ_USER=
+RABBITMQ_PASS=
 
-NODE_NAME=my_node
-NODE_ADDRESS=
+NODE_NAME=lto.cloud
+NODE_ADDRESS=example.com
 NODE_IP=0.0.0.0
 NODE_PORT=6869
 
