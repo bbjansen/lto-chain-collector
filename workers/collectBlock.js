@@ -92,7 +92,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
 
         // Add each block to the confirm queue for processing with a delay of 90 min
         // requires rabbitMQ delay message plugin
-        confirmQueue.publish('delayed', 'address', new Buffer(JSON.stringify(block)), {
+        confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
           correlationId: UUID(),
           headers: { 'x-delay': 1000 * 60 * 10 }
         })
