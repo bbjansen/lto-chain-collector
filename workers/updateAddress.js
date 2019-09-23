@@ -13,7 +13,6 @@ module.exports = function (addressQueue) {
 
   async function updateAddress (msg) {
     try {
-      const secs = msg.content.toString().split('.').length - 1
       const address = JSON.parse(msg.content.toString())
 
       // Get Balance
@@ -34,7 +33,7 @@ module.exports = function (addressQueue) {
       // Ack
       addressQueue.ack(msg)
 
-      console.log('[Address] [' + address + '] updated' + ' (' + secs + ')')
+      console.log('[Address] [' + address + '] updated')
     } catch (err) {
       console.error('[Address] ' + err.toString())
     }

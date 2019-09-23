@@ -14,7 +14,6 @@ module.exports = function (confirmQueue) {
 
   async function confirmBlock (msg) {
     try {
-      const secs = msg.content.toString().split('.').length - 1
       const block = JSON.parse(msg.content.toString())
       
       // Get block data
@@ -37,7 +36,7 @@ module.exports = function (confirmQueue) {
         })
         .where('block', block.height)
 
-        console.log('[Block] [' + block.height + '] confirmed' + ' (' + secs + ')')
+        console.log('[Block] [' + block.height + '] confirmed')
       }
 
       // Acknowledge

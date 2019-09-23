@@ -14,7 +14,6 @@ module.exports = function (txQueue, addressQueue) {
 
   async function processTx (msg) {
     try {
-      const secs = msg.content.toString().split('.').length - 1
       const block = JSON.parse(msg.content.toString())
 
       // If tx: map and store block transactions
@@ -74,7 +73,7 @@ module.exports = function (txQueue, addressQueue) {
               })
             })
           }
-          console.log('[Tx] [' + tx.id + '] processed' + ' (' + secs + ')')
+          console.log('[Tx] [' + tx.id + '] processed')
         })
 
         // Create an array with unique addresses from each transaction

@@ -14,7 +14,6 @@ module.exports = function (blockQueue) {
 
   async function processBlock (msg) {
     try {
-      const secs = msg.content.toString().split('.').length - 1
       const block = JSON.parse(msg.content.toString())
 
       // Check if block hasn't been inserted yet
@@ -54,9 +53,9 @@ module.exports = function (blockQueue) {
           })
         }
 
-        console.log('[Block] [' + block.height + '] collected' + ' (' + secs + ')')
+        console.log('[Block] [' + block.height + '] collected')
       } else {
-        console.warn('[Block] [' + block.height + '] duplicate' + ' (' + secs + ')')
+        console.warn('[Block] [' + block.height + '] duplicate')
       }
 
       // Acknowledge
