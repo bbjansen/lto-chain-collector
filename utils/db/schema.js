@@ -10,7 +10,7 @@ db.schema.hasTable('blocks').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `blocks` created')
 
-    db.schema.createTable('blocks', function (table) {
+    return db.schema.createTable('blocks', function (table) {
       table.integer('index').unique().notNullable()
       table.string('reference').notNullable()
       table.string('generator').notNullable()
@@ -31,7 +31,7 @@ db.schema.hasTable('consensus').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `consensus` created')
 
-    db.schema.createTable('consensus', function (table) {
+    return db.schema.createTable('consensus', function (table) {
       table.integer('index').unique().notNullable()
       table.integer('target').notNullable()
       table.string('signature').notNullable()
@@ -44,7 +44,7 @@ db.schema.hasTable('features').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `features` created')
 
-    db.schema.createTable('features', function (table) {
+    return db.schema.createTable('features', function (table) {
       table.increments('id').primary()
       table.integer('index').notNullable()
       table.integer('feature').notNullable()
@@ -57,7 +57,7 @@ db.schema.hasTable('transactions').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `transactions` created')
 
-    db.schema.createTable('transactions', function (table) {
+    return db.schema.createTable('transactions', function (table) {
       table.string('id').unique().primary().notNullable()
       table.integer('type').notNullable()
       table.integer('block').notNullable()
@@ -82,7 +82,7 @@ db.schema.hasTable('transfers').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `transfers` created')
 
-    db.schema.createTable('transfers', function (table) {
+    return db.schema.createTable('transfers', function (table) {
       table.increments('id').primary()
       table.string('tid').notNullable()
       table.string('recipient').notNullable()
@@ -96,7 +96,7 @@ db.schema.hasTable('proofs').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `proofs` created')
 
-    db.schema.createTable('proofs', function (table) {
+    return db.schema.createTable('proofs', function (table) {
       table.increments('id').primary()
       table.string('tid').notNullable()
       table.string('proof').notNullable()
@@ -109,7 +109,7 @@ db.schema.hasTable('anchors').then(function (exists) {
   if (!exists) {
     console.info('[DB] Table `anchors` created')
 
-    db.schema.createTable('anchors', function (table) {
+    return db.schema.createTable('anchors', function (table) {
       table.increments('id').primary().notNullable()
       table.string('tid').notNullable()
       table.string('anchor').notNullable()
