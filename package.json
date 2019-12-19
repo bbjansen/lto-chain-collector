@@ -1,7 +1,7 @@
 {
-  "name": "lto-chain-cache-collector",
-  "version": "0.1.0",
-  "description": "Caches the LTO Network into a SQL DB.",
+  "name": "lto-cache-collector",
+  "version": "0.1.3",
+  "description": "Caches the entire blockchain of the LTO Network into a SQL DB, among with extra information.",
   "main": "app.js",
   "scripts": {
     "start": "node ./bin/www",
@@ -9,20 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fexra/lto-chain-cache-collector.git"
+    "url": "git+https://github.com/bbjansen/lto-cache-collector.git"
   },
   "keywords": [
     "lto",
     "cache",
     "sql",
-    "cryptocurrency"
+    "crypto"
   ],
-  "author": "bobjansen <bobjansen@protonmail.com>",
+  "author": "bbjansen <bobjansen@pm.me>",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/fexra/lto-chain-cache-collector/issues"
+    "url": "https://github.com/bbjansen/lto-cache-collector/issues"
   },
-  "homepage": "https://github.com/fexra/lto-chain-cache-collector#readme",
+  "homepage": "https://github.com/bbjansen/lto-cache-collector#readme",
   "dependencies": {
     "amqplib": "^0.5.5",
     "axios": "^0.19.0",
