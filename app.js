@@ -42,6 +42,6 @@ async function init () {
   require('./workers/collectBlock')(blockQueue, confirmQueue, txQueue, addressQueue)
   require('./workers/processBlock')(blockQueue)
   require('./workers/processTx')(txQueue, addressQueue)
-  require('./workers/updateAddress')(addressQueue)
+  require('./workers/processAddress')(addressQueue)
   require('./workers/verifyBlock')(confirmQueue)
 }
