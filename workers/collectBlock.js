@@ -90,12 +90,17 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
           correlationId: UUID(),
         })
 
-        // Add each block to the confirm queue for processing with a delay of 90 min
-        // requires rabbitMQ delay message plugin
-        confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
-          correlationId: UUID(),
-          headers: { 'x-delay': 1000 * 60 * 10 }
-        })
+        // If enabled, add each block to a confirm 
+        // queue for processing with a delay of 90 min.
+        // Enabled by default, disable for quicker sync
+        // from scratch. Requires rabbitMQ delay message
+        // plugin
+        if(process.env.CONFIRM_BLOCKS === 1 || !process.env.CONFIRM_BLOCKS) {
+          confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
+            correlationId: UUID(),
+            headers: { 'x-delay': 1000 * 60 * 10 }
+          })
+        }
 
         // Add each block to the tx queue for processing
         txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block)), {
