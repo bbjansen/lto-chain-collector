@@ -67,30 +67,40 @@ module.exports = function (txQueue, addressQueue) {
                 amount: (transfer.amount / 100000000) || null
               })
 
-              // Update recipient balance
-              addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
-                correlationId: UUID()
-              })
+              // If enabled, update recipient balance.
+              // Useful to disable when wanting a quick
+              // resync from scratch.
+
+              if(process.env.UPDATE_ADDRESSES === 1 || !UPDATE_ADDRESSES) {
+                  addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
+                  correlationId: UUID()
+                })
+              }
             })
           }
           console.log('[Tx] [' + tx.id + '] processed')
         })
 
-        // Create an array with unique addresses from each transaction
-        let uniqueAddresses = new Set()
-        block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
-        block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
-        uniqueAddresses = [...uniqueAddresses]
-        uniqueAddresses.filter(Boolean)
+        // If enabled, update unique recipient balance.
+        // Useful to disable when wanting a quick
+        // resync from scratch.
+        if(process.env.UPDATE_ADDRESSES === 1 || !UPDATE_ADDRESSES) {
+          // Create an array with unique addresses from each transaction
+          let uniqueAddresses = new Set()
+          block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
+          block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
+          uniqueAddresses = [...uniqueAddresses]
+          uniqueAddresses.filter(Boolean)
 
-        // Update balances of each address 
-        uniqueAddresses.forEach(address => {
-          if(address) {
-            addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
-              correlationId: UUID()
-            })
-          }
-        })
+          // Update balances of each address 
+          uniqueAddresses.forEach(address => {
+            if(address) {
+              addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
+                correlationId: UUID()
+              })
+            }
+          })
+        }
       }
 
       // Acknowledge
