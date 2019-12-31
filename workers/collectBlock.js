@@ -102,10 +102,14 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
           correlationId: UUID()
         })
 
-        // Update block generator balance
-        addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(block.generator)), {
-          correlationId: UUID(),
-        })
+        // If enabled, skip updating block generator balance.
+        // Useful to disable when wanting a quick
+        // resync from scratch.
+        if(process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+          addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(block.generator)), {
+            correlationId: UUID(),
+          })
+        }
       })
     } catch (err) {
       console.log('[Block] ' + err.toString())
