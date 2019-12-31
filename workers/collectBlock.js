@@ -95,7 +95,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         // Enabled by default, disable for quicker sync
         // from scratch. Requires rabbitMQ delay message
         // plugin
-        if(process.env.CONFIRM_BLOCKS === 1 || !process.env.CONFIRM_BLOCKS) {
+        if(+process.env.CONFIRM_BLOCKS === 1 || !process.env.CONFIRM_BLOCKS) {
           confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
             correlationId: UUID(),
             headers: { 'x-delay': 1000 * 60 * 10 }
@@ -110,7 +110,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         // If enabled, skip updating block generator balance.
         // Useful to disable when wanting a quick
         // resync from scratch.
-        if(process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+        if(+process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
           addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(block.generator)), {
             correlationId: UUID(),
           })

@@ -71,7 +71,7 @@ module.exports = function (txQueue, addressQueue) {
               // Useful to disable when wanting a quick
               // resync from scratch.
 
-              if(process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+              if(+process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
                   addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
                   correlationId: UUID()
                 })
@@ -84,7 +84,7 @@ module.exports = function (txQueue, addressQueue) {
         // If enabled, update unique recipient balance.
         // Useful to disable when wanting a quick
         // resync from scratch.
-        if(process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+        if(+process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
           // Create an array with unique addresses from each transaction
           let uniqueAddresses = new Set()
           block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
