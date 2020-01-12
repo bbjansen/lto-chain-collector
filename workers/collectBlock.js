@@ -98,7 +98,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         if(+process.env.CONFIRM_BLOCKS === 1 || !process.env.CONFIRM_BLOCKS) {
           confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
             correlationId: UUID(),
-            headers: { 'x-delay': 1000 * 60 * 10 }
+            headers: { 'x-delay': +process.env.DELAY_BLOCKS }
           })
         }
 
