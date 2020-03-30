@@ -65,6 +65,10 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
+
+          // Commit transaction
+          await txn.commit()
+
           // Store Tx Transfers
           // not part of db transaction at the moment
           // problem with mapping promise - transaction already ended
@@ -115,8 +119,7 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-          // Commit transaction
-          await txn.commit()
+
           console.log('[Tx] [' + tx.id + '] processed')
         })
       }
