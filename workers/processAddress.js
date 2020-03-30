@@ -16,7 +16,7 @@ module.exports = function (addressQueue) {
       const address = JSON.parse(msg.content.toString())
 
       // Get Balance
-      const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
+      const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
         timeout: process.env.TIMEOUT
       })
 

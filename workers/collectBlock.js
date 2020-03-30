@@ -23,7 +23,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
       let blockCount = 0
 
       // Grab the network height and last collected block index
-      lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/height', {
+      lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/height', {
         timeout: process.env.TIMEOUT
       })
 
@@ -79,7 +79,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
       const endIndex = (blockIndex + blockCount)
 
       // Get Blocks
-      const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE.IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
+      const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
         timeout: process.env.TIMEOUT
       })
 
