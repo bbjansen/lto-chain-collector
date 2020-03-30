@@ -58,6 +58,6 @@ async function purgeBlocks (start) {
 
     console.log('[Purged] Block ' + start + ' - ' + end)
   } catch (err) {
-    console.error(err)
+    console.error('[Purged]' + err.toString())
   }
 }
