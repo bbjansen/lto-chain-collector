@@ -63,29 +63,37 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-          // Store Tx Transfers
-          if (tx.transfers) {
-            tx.transfers.map(async (transfer) => {
-              await txn('transfers').insert({
-                tid: tx.id,
-                recipient: transfer.recipient,
-                amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
-              })
+          // Commit transaction and acknowledge message
+          await txn.commit()
 
-              // If enabled, update recipient balance.
-              // Useful to disable when wanting a quick
-              // resync from scratch.
-
-              if(+process.env.UPDATE_ADDRESSES) {
-                  addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
-                  correlationId: UUID()
-                })
-              }
-            })
-          }
-
-          console.log('[Tx] [' + tx.id + '] processed')
         })
+
+
+        // Store Tx Transfers
+        // not part of db transaction at the moment
+        // problem with mapping promise - transaction already ended
+
+        if (tx.transfers) {
+          tx.transfers.map(async (transfer) => {
+
+            await db('transfers').insert({
+              tid: tx.id,
+              recipient: transfer.recipient,
+              amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
+            })
+
+            // If enabled, update recipient balance.
+            // Useful to disable when wanting a quick
+            // resync from scratch.
+
+            if(+process.env.UPDATE_ADDRESSES) {
+                addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
+                correlationId: UUID()
+              })
+            }
+          })
+        }
+
 
         // If enabled, update unique recipient balance.
         // Useful to disable when wanting a quick
@@ -112,9 +120,8 @@ module.exports = function (txQueue, addressQueue) {
         }
       }
 
-      // Commit transaction and acknowledge message
-      await txn.commit()
       await txQueue.ack(msg)
+      console.log('[Tx] [' + tx.id + '] processed')
 
     } catch (err) {
       // roll back transaction and send message back to the queue
