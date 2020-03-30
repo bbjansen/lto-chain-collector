@@ -69,7 +69,7 @@ module.exports = function (txQueue, addressQueue) {
           // not part of db transaction at the moment
           // problem with mapping promise - transaction already ended
 
-          if (tx.transfers) {
+          if (tx.transfers.length >= 1) {
             tx.transfers.map(async (transfer) => {
 
               await db('transfers').insert({
