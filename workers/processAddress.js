@@ -17,7 +17,7 @@ module.exports = function (addressQueue) {
 
       // Get Balance
       const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
-        timeout: process.env.TIMEOUT
+        timeout: +process.env.TIMEOUT
       })
 
       // Check if address exist
@@ -30,19 +30,19 @@ module.exports = function (addressQueue) {
         // insert
         await db('addresses').insert({
           address: address,
-          regular: balances.data.regular / process.env.ATOMIC_NUMBER,
-          generating: balances.data.generating / process.env.ATOMIC_NUMBER,
-          available: balances.data.available / process.env.ATOMIC_NUMBER,
-          effective: balances.data.effective / process.env.ATOMIC_NUMBER
+          regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
+          generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
+          available: balances.data.available / +process.env.ATOMIC_NUMBER,
+          effective: balances.data.effective / +process.env.ATOMIC_NUMBER
         })
       }  
       else {
         // update
         await db('addresses').update({
-          regular: balances.data.regular / process.env.ATOMIC_NUMBER,
-          generating: balances.data.generating / process.env.ATOMIC_NUMBER,
-          available: balances.data.available / process.env.ATOMIC_NUMBER,
-          effective: balances.data.effective / process.env.ATOMIC_NUMBER,
+          regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
+          generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
+          available: balances.data.available / +process.env.ATOMIC_NUMBER,
+          effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
           updated: moment().format('YYYY-MM-DD HH:mm:ss')
         })
         .where('address', address)

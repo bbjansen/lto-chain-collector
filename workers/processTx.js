@@ -29,8 +29,8 @@ module.exports = function (txQueue, addressQueue) {
             recipient: tx.recipient,
             sender: tx.sender,
             senderPublicKey: tx.senderPublicKey,
-            amount: (tx.amount / process.env.ATOMIC_NUMBER) || (tx.totalAmount / process.env.ATOMIC_NUMBER) || null,
-            fee: tx.fee / process.env.ATOMIC_NUMBER,
+            amount: (tx.amount / +process.env.ATOMIC_NUMBER) || (tx.totalAmount / +process.env.ATOMIC_NUMBER) || null,
+            fee: tx.fee / +process.env.ATOMIC_NUMBER,
             signature: tx.signature,
             attachment: tx.attachment,
             timestamp: tx.timestamp,
@@ -65,14 +65,14 @@ module.exports = function (txQueue, addressQueue) {
               await db('transfers').insert({
                 tid: tx.id,
                 recipient: transfer.recipient,
-                amount: (transfer.amount / process.env.ATOMIC_NUMBER) || null
+                amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
               })
 
               // If enabled, update recipient balance.
               // Useful to disable when wanting a quick
               // resync from scratch.
 
-              if(process.env.UPDATE_ADDRESSES) {
+              if(+process.env.UPDATE_ADDRESSES) {
                   addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
                   correlationId: UUID()
                 })
@@ -87,7 +87,7 @@ module.exports = function (txQueue, addressQueue) {
         // Useful to disable when wanting a quick
         // resync from scratch.
         
-        if(process.env.UPDATE_ADDRESSES) {
+        if(+process.env.UPDATE_ADDRESSES) {
           
           // Create an array with unique addresses from each transaction
           let uniqueAddresses = new Set()

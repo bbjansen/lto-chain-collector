@@ -30,7 +30,7 @@ module.exports = function (blockQueue) {
           signature: block.signature,
           size: block.blocksize || 0,
           count: block.transactionCount || 0,
-          fee: block.fee / process.env.ATOMIC_NUMBER || 0,
+          fee: block.fee / +process.env.ATOMIC_NUMBER || 0,
           version: block.version || 0,
           timestamp: block.timestamp,
           datetime: moment(block.timestamp).format('YYYY-MM-DD HH:mm:ss')

@@ -12,6 +12,7 @@ const UUID = require('uuid/v4')
 // Connects to a LTO node API
 
 module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
+
   setInterval(function () {
     collectBlocks()
   }, process.env.COLLECT_BLOCKS)
@@ -24,7 +25,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
 
       // Grab the network height and last collected block index
       lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/height', {
-        timeout: process.env.TIMEOUT
+        timeout: +process.env.TIMEOUT
       })
 
       blockIndex = await db('blocks')
@@ -80,7 +81,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
 
       // Get Blocks
       const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
-        timeout: process.env.TIMEOUT
+        timeout: +process.env.TIMEOUT
       })
 
       // Process blocks
@@ -96,7 +97,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         // from scratch. Requires rabbitMQ delay message
         // plugin
         
-        if(process.env.CONFIRM_BLOCKS) {
+        if(+process.env.CONFIRM_BLOCKS) {
           confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
             correlationId: UUID(),
             headers: { 'x-delay': +process.env.DELAY_BLOCKS }
@@ -111,7 +112,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         // If enabled, skip updating block generator balance.
         // Useful to disable when wanting a quick
         // resync from scratch.
-        if(process.env.UPDATE_ADDRESSES) {
+        if(+process.env.UPDATE_ADDRESSES) {
           addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(block.generator)), {
             correlationId: UUID(),
           })

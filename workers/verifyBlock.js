@@ -18,7 +18,7 @@ module.exports = function (confirmQueue) {
       
       // Get block data
       const check = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/at/' + block.height, {
-        timeout: process.env.TIMEOUT
+        timeout: +process.env.TIMEOUT
       })
 
       // Validate signature
