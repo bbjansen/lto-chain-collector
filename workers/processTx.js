@@ -49,7 +49,7 @@ module.exports = function (txQueue, addressQueue) {
           if (tx.proofs) {
             await db('proofs').insert({
               tid: tx.id,
-              proof: tx.proofs
+              proofs: tx.proofs
             })
           }
 
@@ -57,7 +57,7 @@ module.exports = function (txQueue, addressQueue) {
           if (tx.anchors) {
             await db('anchors').insert({
               tid: tx.id,
-              anchor: tx.anchors
+              anchors: tx.anchors
             })
           }
 
