@@ -23,6 +23,7 @@ RABBITMQ_USER=
 RABBITMQ_PASS=
 
 NODE_NAME=lto.cloud
+NODE_ADDRESS=https://node.endpoint
 NODE_IP=0.0.0.0
 NODE_PORT=6869
 
