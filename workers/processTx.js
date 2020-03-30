@@ -28,8 +28,8 @@ module.exports = function (txQueue, addressQueue) {
             recipient: tx.recipient,
             sender: tx.sender,
             senderPublicKey: tx.senderPublicKey,
-            amount: (tx.amount / 100000000) || (tx.totalAmount / 100000000) || null,
-            fee: tx.fee / 100000000,
+            amount: (tx.amount / process.env.ATOMIC_NUMBER) || (tx.totalAmount / process.env.ATOMIC_NUMBER) || null,
+            fee: tx.fee / process.env.ATOMIC_NUMBER,
             signature: tx.signature,
             attachment: tx.attachment,
             timestamp: tx.timestamp,
@@ -64,7 +64,7 @@ module.exports = function (txQueue, addressQueue) {
               await db('transfers').insert({
                 tid: tx.id,
                 recipient: transfer.recipient,
-                amount: (transfer.amount / 100000000) || null
+                amount: (transfer.amount / process.env.ATOMIC_NUMBER) || null
               })
 
               // If enabled, update recipient balance.

@@ -30,19 +30,19 @@ module.exports = function (addressQueue) {
         // insert
         await db('addresses').insert({
           address: address,
-          regular: balances.data.regular / 100000000,
-          generating: balances.data.generating / 100000000,
-          available: balances.data.available / 100000000,
-          effective: balances.data.effective / 100000000
+          regular: balances.data.regular / process.env.ATOMIC_NUMBER,
+          generating: balances.data.generating / process.env.ATOMIC_NUMBER,
+          available: balances.data.available / process.env.ATOMIC_NUMBER,
+          effective: balances.data.effective / process.env.ATOMIC_NUMBER
         })
       }  
       else {
         // update
         await db('addresses').update({
-          regular: balances.data.regular / 100000000,
-          generating: balances.data.generating / 100000000,
-          available: balances.data.available / 100000000,
-          effective: balances.data.effective / 100000000,
+          regular: balances.data.regular / process.env.ATOMIC_NUMBER,
+          generating: balances.data.generating / process.env.ATOMIC_NUMBER,
+          available: balances.data.available / process.env.ATOMIC_NUMBER,
+          effective: balances.data.effective / process.env.ATOMIC_NUMBER,
           updated: moment().format('YYYY-MM-DD HH:mm:ss')
         })
         .where('address', address)
