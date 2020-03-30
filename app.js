@@ -21,6 +21,7 @@ require('./utils/db/schema')
 init()
 
 async function init () {
+  
   // Create Queues
   const blockQueue = await rabbitMQ('blockQueue')
   const txQueue = await rabbitMQ('txQueue')

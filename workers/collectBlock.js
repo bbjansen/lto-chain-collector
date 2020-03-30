@@ -86,6 +86,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
 
       // Process blocks
       blocks.data.forEach(block => {
+        
         // Add each block to the queue for processing
         blockQueue.sendToQueue('blockQueue', new Buffer(JSON.stringify(block)), {
           correlationId: UUID(),
