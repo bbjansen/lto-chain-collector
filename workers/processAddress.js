@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019, BB Jansen
+// Copyright (c) 2018-2020, BB Jansen
 //
 // Please see the included LICENSE file for more information.
 
