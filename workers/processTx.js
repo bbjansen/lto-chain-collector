@@ -63,9 +63,9 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-          // Commit transaction and acknowledge message
+          // Commit transaction
           await txn.commit()
-
+          console.log('[Tx] [' + tx.id + '] processed')
         })
 
 
@@ -120,8 +120,8 @@ module.exports = function (txQueue, addressQueue) {
         }
       }
 
+      // ackownledge
       await txQueue.ack(msg)
-      console.log('[Tx] [' + tx.id + '] processed')
 
     } catch (err) {
       // roll back transaction and send message back to the queue
