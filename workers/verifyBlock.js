@@ -13,6 +13,9 @@ const axios = require('axios')
 
 module.exports = function (confirmQueue) {
 
+  // Consume one block at a time
+  confirmQueue.prefetch(1)
+
   confirmQueue.consume('confirmQueue', confirmBlock)
 
   async function confirmBlock (msg) {

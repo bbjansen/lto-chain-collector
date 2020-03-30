@@ -12,6 +12,9 @@ const UUID = require('uuid/v4')
 // Consumes all items in tx queue
 module.exports = function (txQueue, addressQueue) {
   
+  // Consume one transaction at a time
+  txQueue.prefetch(1)
+
   txQueue.consume('txQueue', processTx)
 
   async function processTx (msg) {

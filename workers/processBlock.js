@@ -11,6 +11,9 @@ const moment = require('moment')
 // Consumes all items in block queue
 module.exports = function (blockQueue) {
 
+  // Consume one block at a time
+  blockQueue.prefetch(1)
+
   blockQueue.consume('blockQueue', processBlock)
 
   async function processBlock (msg) {

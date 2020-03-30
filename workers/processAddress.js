@@ -12,6 +12,9 @@ const moment = require('moment')
 // Consumes the address queue to check and update balances
 module.exports = function (addressQueue) {
 
+  // Consume one address at a time
+  addressQueue.prefetch(1)
+
   addressQueue.consume('addressQueue', updateAddress)
 
   async function updateAddress (msg) {
