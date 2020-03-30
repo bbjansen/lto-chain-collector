@@ -16,7 +16,13 @@ const knex = module.exports = require('knex')({
   },
   pool: {
     min: 2,
-    max: 100
+    max: 100,
+    createTimeoutMillis: 10000,
+    acquireTimeoutMillis: 30000,
+    idleTimeoutMillis: 30000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 100,
+    propagateCreateError: false
   }
 })
 
