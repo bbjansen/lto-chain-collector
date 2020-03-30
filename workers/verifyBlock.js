@@ -41,7 +41,10 @@ module.exports = function (confirmQueue) {
 
       // Acknowledge
       confirmQueue.ack(msg)
+      
     } catch (err) {
+      // Negative Acknowledge -- send back to queue for retry
+      confirmQueue.nack(msg)
       console.log('[Block] ' + err.toString())
     }
   }

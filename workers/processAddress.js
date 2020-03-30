@@ -48,11 +48,13 @@ module.exports = function (addressQueue) {
         .where('address', address)
       }
 
-      // Ack
+      // Acknowledge
       addressQueue.ack(msg)
-
       console.log('[Address] [' + address + '] processed')
+
     } catch (err) {
+      // Reject Acknowledge -- drop from queue on failure
+      addressQueue.reject(msg)
       console.error('[Address] ' + err.toString())
     }
   }

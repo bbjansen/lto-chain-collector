@@ -110,9 +110,10 @@ module.exports = function (txQueue, addressQueue) {
 
       // Acknowledge
       await txQueue.ack(msg)
+      
     } catch (err) {
-      // Acknowledge the job, to avoid it going back to the queue - read message at start
-      // processBlock.ack(msg)
+      // Negative Acknowledge -- send back to queue for retry
+      txQueue.nack(msg)
       console.error('[Tx]' + err.toString())
     }
   }

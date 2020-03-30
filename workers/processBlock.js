@@ -60,9 +60,10 @@ module.exports = function (blockQueue) {
 
       // Acknowledge
       await blockQueue.ack(msg)
+      
     } catch (err) {
-      // Acknowledge the job, to avoid it going back to the queue - read message at start
-      // processBlock.ack(msg)
+      // Negative Acknowledge -- send back to queue for retry
+      blockQueue.nack(msg)
       console.error('[ Block]: ' + err.toString())
     }
   }
