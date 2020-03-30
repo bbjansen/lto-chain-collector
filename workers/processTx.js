@@ -65,15 +65,11 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-
-          // Commit transaction
-          await txn.commit()
-
           // Store Tx Transfers
           // not part of db transaction at the moment
           // problem with mapping promise - transaction already ended
 
-          if (tx.transfers.length >= 1) {
+          if (tx.transfers) {
             tx.transfers.map(async (transfer) => {
 
               await db('transfers').insert({
@@ -120,6 +116,8 @@ module.exports = function (txQueue, addressQueue) {
           }
 
 
+          // Commit transaction
+          await txn.commit()
           console.log('[Tx] [' + tx.id + '] processed')
         })
       }
