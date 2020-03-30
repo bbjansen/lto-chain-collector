@@ -16,12 +16,12 @@ const knex = module.exports = require('knex')({
   },
   pool: {
     min: 2,
-    max: 100,
-    createTimeoutMillis: 30000,
-    acquireTimeoutMillis: 100000,
-    idleTimeoutMillis: 30000,
-    reapIntervalMillis: 1000,
-    createRetryIntervalMillis: 1000,
+    max: 151,
+//    createTimeoutMillis: 30000,
+//    acquireTimeoutMillis: 100000,
+//    idleTimeoutMillis: 30000,
+//    reapIntervalMillis: 1000,
+//    createRetryIntervalMillis: 1000,
     propagateCreateError: false
   }
 })
