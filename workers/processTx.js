@@ -14,6 +14,7 @@ module.exports = function (txQueue, addressQueue) {
 
   async function processTx (msg) {
     try {
+      
       const block = JSON.parse(msg.content.toString())
 
       // If tx: map and store block transactions
@@ -71,22 +72,26 @@ module.exports = function (txQueue, addressQueue) {
               // Useful to disable when wanting a quick
               // resync from scratch.
 
-              if(+process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+              if(process.env.UPDATE_ADDRESSES) {
                   addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
                   correlationId: UUID()
                 })
               }
             })
           }
+
           console.log('[Tx] [' + tx.id + '] processed')
         })
 
         // If enabled, update unique recipient balance.
         // Useful to disable when wanting a quick
         // resync from scratch.
-        if(+process.env.UPDATE_ADDRESSES === 1 || !process.env.UPDATE_ADDRESSES) {
+        
+        if(process.env.UPDATE_ADDRESSES) {
+          
           // Create an array with unique addresses from each transaction
           let uniqueAddresses = new Set()
+
           block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
           block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
           uniqueAddresses = [...uniqueAddresses]
