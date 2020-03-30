@@ -54,11 +54,9 @@ module.exports = function (blockQueue) {
 
         // Store block feature
         if (block.features) {
-          block.features.map(async (feature) => {
-            await txn('features').insert({
-              index: block.height,
-              feature: feature
-            })
+          await db('features').insert({
+            index: block.height,
+            features: JSON.stringify(block.features)
           })
         }
 

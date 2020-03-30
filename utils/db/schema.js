@@ -47,7 +47,7 @@ db.schema.hasTable('features').then(function (exists) {
     return db.schema.createTable('features', function (table) {
       table.increments('id').primary()
       table.integer('index').notNullable()
-      table.integer('feature').notNullable()
+      table.json('features').notNullable()
     })
   }
 })
