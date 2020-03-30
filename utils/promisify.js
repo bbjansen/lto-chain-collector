@@ -2,6 +2,6 @@
 //
 // Please see the included LICENSE file for more information.
 
-const promisify = (fn) => new Promise.all((resolve, reject) => fn(resolve))
+const promisify = (fn) => new Promise((resolve, reject) => fn(resolve))
 
 module.exports = promisify
