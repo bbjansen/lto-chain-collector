@@ -49,21 +49,17 @@ module.exports = function (txQueue, addressQueue) {
 
           // Store Tx Proofs
           if (tx.proofs) {
-            tx.proofs.map(async (proof) => {
-              await txn('proofs').insert({
-                tid: tx.id,
-                proof: proof
-              })
+            await txn('proofs').insert({
+              tid: tx.id,
+              proof: proofs
             })
           }
 
           // Store Tx Anchors
           if (tx.anchors) {
-            tx.anchors.map(async (anchor) => {
-              await txn('anchors').insert({
-                tid: tx.id,
-                anchor: anchor
-              })
+            await txn('anchors').insert({
+              tid: tx.id,
+              anchor: anchors
             })
           }
 

@@ -99,7 +99,7 @@ db.schema.hasTable('proofs').then(function (exists) {
     return db.schema.createTable('proofs', function (table) {
       table.increments('id').primary()
       table.string('tid').notNullable()
-      table.string('proof').notNullable()
+      table.json('proofs').notNullable()
     })
   }
 })
@@ -112,7 +112,7 @@ db.schema.hasTable('anchors').then(function (exists) {
     return db.schema.createTable('anchors', function (table) {
       table.increments('id').primary().notNullable()
       table.string('tid').notNullable()
-      table.string('anchor').notNullable()
+      table.json('anchors').notNullable()
     })
   }
 })
