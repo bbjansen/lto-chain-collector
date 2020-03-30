@@ -25,8 +25,10 @@ module.exports = function (txQueue, addressQueue) {
     try {
       const block = JSON.parse(msg.content.toString())
 
-      // If tx: map and store block transactions
+      // Check for transactions
       if (block.transactionCount >= 1) {
+
+        // map transactions
         block.transactions.map(async (tx) => {
 
           // Store Tx
@@ -63,64 +65,63 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
+          // Store Tx Transfers
+          // not part of db transaction at the moment
+          // problem with mapping promise - transaction already ended
+
+          if (tx.transfers) {
+            tx.transfers.map(async (transfer) => {
+
+              await db('transfers').insert({
+                tid: tx.id,
+                recipient: transfer.recipient,
+                amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
+              })
+
+              // If enabled, update recipient balance.
+              // Useful to disable when wanting a quick
+              // resync from scratch.
+
+              if(+process.env.UPDATE_ADDRESSES) {
+                  addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
+                  correlationId: UUID()
+                })
+              }
+            })
+          }
+
+
+          // If enabled, update unique recipient balance.
+          // Useful to disable when wanting a quick
+          // resync from scratch.
+          
+          if(+process.env.UPDATE_ADDRESSES) {
+            
+            // Create an array with unique addresses from each transaction
+            let uniqueAddresses = new Set()
+
+            block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
+            block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
+            uniqueAddresses = [...uniqueAddresses]
+            uniqueAddresses.filter(Boolean)
+
+            // Update balances of each address 
+            uniqueAddresses.forEach(address => {
+              if(address) {
+                addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
+                  correlationId: UUID()
+                })
+              }
+            })
+          }
+
           // Commit transaction
           await txn.commit()
           console.log('[Tx] [' + tx.id + '] processed')
         })
-
-
-        // Store Tx Transfers
-        // not part of db transaction at the moment
-        // problem with mapping promise - transaction already ended
-
-        if (tx.transfers) {
-          tx.transfers.map(async (transfer) => {
-
-            await db('transfers').insert({
-              tid: tx.id,
-              recipient: transfer.recipient,
-              amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
-            })
-
-            // If enabled, update recipient balance.
-            // Useful to disable when wanting a quick
-            // resync from scratch.
-
-            if(+process.env.UPDATE_ADDRESSES) {
-                addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
-                correlationId: UUID()
-              })
-            }
-          })
-        }
-
-
-        // If enabled, update unique recipient balance.
-        // Useful to disable when wanting a quick
-        // resync from scratch.
-        
-        if(+process.env.UPDATE_ADDRESSES) {
-          
-          // Create an array with unique addresses from each transaction
-          let uniqueAddresses = new Set()
-
-          block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
-          block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
-          uniqueAddresses = [...uniqueAddresses]
-          uniqueAddresses.filter(Boolean)
-
-          // Update balances of each address 
-          uniqueAddresses.forEach(address => {
-            if(address) {
-              addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
-                correlationId: UUID()
-              })
-            }
-          })
-        }
       }
 
-      // ackownledge
+      // Ackownledge
       await txQueue.ack(msg)
 
     } catch (err) {
