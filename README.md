@@ -1,5 +1,5 @@
 # LTO Cache Collector
-> Stores and maintains a full cached copy of the entire LTO Network in an off-chain database for much quicker access and reading time.
+> Stores and maintains a full copy of the public LTO chain in an off-chain database cache for quicker writing and reading.
 
 ## Requirements
 - Node.js v8+
@@ -7,8 +7,9 @@
 - [Rabbit MQ](https://www.rabbitmq.com/) 3.6+ with Erlang 20+
 - [Rabbit MQ Delayed Message Exchange Plugin](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange)
 - [LTO Chain Cache API](https://github.com/bbjansen/lto-cache-api)
-## .env example
 
+
+## .env example
 ```
 DB_TYPE=mysql
 DB_HOST=localhost
