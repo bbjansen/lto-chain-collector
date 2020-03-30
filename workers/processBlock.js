@@ -4,7 +4,6 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const moment = require('moment')
 
@@ -18,21 +17,18 @@ module.exports = function (blockQueue) {
 
   async function processBlock (msg) {
 
-    // Handles db transaction
-    const txn = await promisify(db.transaction.bind(db))
-
     try {
       const block = JSON.parse(msg.content.toString())
 
       // Check if block hasn't been inserted yet
-      const checkBlock = await txn('blocks')
+      const checkBlock = await db('blocks')
         .count('* as count')
         .where('index', block.height)
 
       if (checkBlock[0].count === 0) {
 
         // Store block
-        await txn('blocks').insert({
+        await db('blocks').insert({
           index: block.height,
           reference: block.reference,
           generator: block.generator,
@@ -46,7 +42,7 @@ module.exports = function (blockQueue) {
         })
 
         // Store block consensus
-        await txn('consensus').insert({
+        await db('consensus').insert({
           index: block.height,
           target: block['nxt-consensus']['base-target'],
           signature: block['nxt-consensus']['generation-signature']
@@ -66,13 +62,11 @@ module.exports = function (blockQueue) {
         console.warn('[Block] [' + block.height + '] duplicate')
       }
 
-      // Commit transaction and acknowledge message
-      await txn.commit()
+      // Acknowledge message
       await blockQueue.ack(msg)
 
     } catch (err) {
-      // roll back transaction and send message back to the queue
-      await txn.rollback()
+      // Send message back to the queue for a retry
       await blockQueue.nack(msg)
       console.error('[Block]: ' + err.toString())
     }

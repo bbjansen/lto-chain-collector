@@ -4,7 +4,6 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const moment = require('moment')
 const UUID = require('uuid/v4')
@@ -19,9 +18,6 @@ module.exports = function (txQueue, addressQueue) {
 
   async function processTx (msg) {
 
-    // Handles db transaction
-    const txn = await promisify(db.transaction.bind(db))
-
     try {
       const block = JSON.parse(msg.content.toString())
 
@@ -32,7 +28,7 @@ module.exports = function (txQueue, addressQueue) {
         block.transactions.map(async (tx) => {
 
           // Store Tx
-          await txn('transactions').insert({
+          await db('transactions').insert({
             id: tx.id,
             type: tx.type,
             block: block.height,
@@ -51,7 +47,7 @@ module.exports = function (txQueue, addressQueue) {
 
           // Store Tx Proofs
           if (tx.proofs) {
-            await txn('proofs').insert({
+            await db('proofs').insert({
               tid: tx.id,
               proof: proofs
             })
@@ -59,7 +55,7 @@ module.exports = function (txQueue, addressQueue) {
 
           // Store Tx Anchors
           if (tx.anchors) {
-            await txn('anchors').insert({
+            await db('anchors').insert({
               tid: tx.id,
               anchor: anchors
             })
@@ -115,19 +111,15 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-
-          // Commit transaction
-          await txn.commit()
           console.log('[Tx] [' + tx.id + '] processed')
         })
       }
 
-      // Ackownledge
+      // Ackownledge message
       await txQueue.ack(msg)
 
     } catch (err) {
-      // roll back transaction and send message back to the queue
-      await txn.rollback()
+      // Send message back to the queue for a retry
       await txQueue.nack(msg)
       console.error('[Tx]' + err.toString())
     }

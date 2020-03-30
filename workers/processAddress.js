@@ -4,7 +4,6 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
@@ -19,9 +18,6 @@ module.exports = function (addressQueue) {
 
   async function updateAddress (msg) {
 
-    // Handles db transaction
-    const txn = await promisify(db.transaction.bind(db))
-
     try {
       const address = JSON.parse(msg.content.toString())
 
@@ -31,14 +27,14 @@ module.exports = function (addressQueue) {
       })
 
       // Check if address exist
-      const checkAddress = await txn('addresses')
+      const checkAddress = await db('addresses')
         .count('* as count')
         .where('address', address)
 
       if (checkAddress[0].count === 0) {
 
         // insert
-        await txn('addresses').insert({
+        await db('addresses').insert({
           address: address,
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
@@ -48,7 +44,7 @@ module.exports = function (addressQueue) {
       }  
       else {
         // update
-        await txn('addresses').update({
+        await db('addresses').update({
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
@@ -58,13 +54,11 @@ module.exports = function (addressQueue) {
         .where('address', address)
       }
 
-      // Commit transaction and acknowledge message
-      await txn.commit()
+      // Aknowledge message
       await addressQueue.ack(msg)
 
     } catch (err) {
-      // roll back transaction and drop from queue on failure
-      await txn.rollback()
+      // Send message back to the queue for a retry
       await addressQueue.reject(msg)
       console.error('[Address] ' + err.toString())
     }
