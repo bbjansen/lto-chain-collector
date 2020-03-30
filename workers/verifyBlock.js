@@ -18,7 +18,7 @@ module.exports = function (confirmQueue) {
   async function confirmBlock (msg) {
 
     // Handles db transaction
-    const tx = await promisify(db.transaction.bind(db))
+    const txn = await promisify(db.transaction.bind(db))
 
     try {
       const block = JSON.parse(msg.content.toString())
@@ -32,13 +32,13 @@ module.exports = function (confirmQueue) {
       if (check.data.signature === block.signature) {
 
         // Update block
-        await tx('blocks').update({
+        await txn('blocks').update({
           confirmed: true
         })
         .where('index', block.height)
 
         // Update tx belonging to block
-        await tx('transactions').update({
+        await txn('transactions').update({
           confirmed: true
         })
         .where('block', block.height)
@@ -47,12 +47,12 @@ module.exports = function (confirmQueue) {
       }
 
       // Commit transaction and acknowledge message
-      await tx.commit()
+      await txn.commit()
       await confirmQueue.ack(msg)
 
     } catch (err) {
       // roll back transaction and send message back to the queue
-      await tx.rollback()
+      await txn.rollback()
       await confirmQueue.nack(msg)
       console.log('[Block] ' + err.toString())
     }

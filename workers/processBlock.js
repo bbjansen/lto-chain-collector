@@ -16,20 +16,20 @@ module.exports = function (blockQueue) {
   async function processBlock (msg) {
 
     // Handles db transaction
-    const tx = await promisify(db.transaction.bind(db))
+    const txn = await promisify(db.transaction.bind(db))
 
     try {
       const block = JSON.parse(msg.content.toString())
 
       // Check if block hasn't been inserted yet
-      const checkBlock = await tx('blocks')
+      const checkBlock = await txn('blocks')
         .count('* as count')
         .where('index', block.height)
 
       if (checkBlock[0].count === 0) {
 
         // Store block
-        await tx('blocks').insert({
+        await txn('blocks').insert({
           index: block.height,
           reference: block.reference,
           generator: block.generator,
@@ -43,7 +43,7 @@ module.exports = function (blockQueue) {
         })
 
         // Store block consensus
-        await tx('consensus').insert({
+        await txn('consensus').insert({
           index: block.height,
           target: block['nxt-consensus']['base-target'],
           signature: block['nxt-consensus']['generation-signature']
@@ -52,7 +52,7 @@ module.exports = function (blockQueue) {
         // Store block feature
         if (block.features) {
           block.features.map(async (feature) => {
-            await tx('features').insert({
+            await txn('features').insert({
               index: block.height,
               feature: feature
             })
@@ -66,12 +66,12 @@ module.exports = function (blockQueue) {
       }
 
       // Commit transaction and acknowledge message
-      await tx.commit()
+      await txn.commit()
       await blockQueue.ack(msg)
 
     } catch (err) {
       // roll back transaction and send message back to the queue
-      await tx.rollback()
+      await txn.rollback()
       await blockQueue.nack(msg)
       console.error('[Block]: ' + err.toString())
     }

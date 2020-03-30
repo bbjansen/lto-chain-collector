@@ -17,7 +17,7 @@ module.exports = function (addressQueue) {
   async function updateAddress (msg) {
 
     // Handles db transaction
-    const tx = await promisify(db.transaction.bind(db))
+    const txn = await promisify(db.transaction.bind(db))
 
     try {
       const address = JSON.parse(msg.content.toString())
@@ -28,14 +28,14 @@ module.exports = function (addressQueue) {
       })
 
       // Check if address exist
-      const checkAddress = await tx('addresses')
+      const checkAddress = await txn('addresses')
         .count('* as count')
         .where('address', address)
 
       if (checkAddress[0].count === 0) {
 
         // insert
-        await tx('addresses').insert({
+        await txn('addresses').insert({
           address: address,
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
@@ -45,7 +45,7 @@ module.exports = function (addressQueue) {
       }  
       else {
         // update
-        await tx('addresses').update({
+        await txn('addresses').update({
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
@@ -56,12 +56,12 @@ module.exports = function (addressQueue) {
       }
 
       // Commit transaction and acknowledge message
-      await tx.commit()
+      await txn.commit()
       await addressQueue.ack(msg)
 
     } catch (err) {
       // roll back transaction and drop from queue on failure
-      await tx.rollback()
+      await txn.rollback()
       await addressQueue.reject(msg)
       console.error('[Address] ' + err.toString())
     }

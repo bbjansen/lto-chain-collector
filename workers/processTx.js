@@ -17,7 +17,7 @@ module.exports = function (txQueue, addressQueue) {
   async function processTx (msg) {
 
     // Handles db transaction
-    const tx = await promisify(db.transaction.bind(db))
+    const txn = await promisify(db.transaction.bind(db))
 
     try {
       const block = JSON.parse(msg.content.toString())
@@ -27,7 +27,7 @@ module.exports = function (txQueue, addressQueue) {
         block.transactions.map(async (tx) => {
 
           // Store Tx
-          await tx('transactions').insert({
+          await txn('transactions').insert({
             id: tx.id,
             type: tx.type,
             block: block.height,
@@ -47,7 +47,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Proofs
           if (tx.proofs) {
             tx.proofs.map(async (proof) => {
-              await tx('proofs').insert({
+              await txn('proofs').insert({
                 tid: tx.id,
                 proof: proof
               })
@@ -57,7 +57,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Anchors
           if (tx.anchors) {
             tx.anchors.map(async (anchor) => {
-              await tx('anchors').insert({
+              await txn('anchors').insert({
                 tid: tx.id,
                 anchor: anchor
               })
@@ -67,7 +67,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Transfers
           if (tx.transfers) {
             tx.transfers.map(async (transfer) => {
-              await tx('transfers').insert({
+              await txn('transfers').insert({
                 tid: tx.id,
                 recipient: transfer.recipient,
                 amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
@@ -114,12 +114,12 @@ module.exports = function (txQueue, addressQueue) {
       }
 
       // Commit transaction and acknowledge message
-      await tx.commit()
+      await txn.commit()
       await txQueue.ack(msg)
 
     } catch (err) {
       // roll back transaction and send message back to the queue
-      await tx.rollback()
+      await txn.rollback()
       await txQueue.nack(msg)
       console.error('[Tx]' + err.toString())
     }
