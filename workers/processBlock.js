@@ -4,26 +4,32 @@
 
 'use strict'
 
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const moment = require('moment')
-const UUID = require('uuid/v4')
 
 // Consumes all items in block queue
 module.exports = function (blockQueue) {
+
   blockQueue.consume('blockQueue', processBlock)
 
   async function processBlock (msg) {
+
+    // Handles db transaction
+    const tx = await promisify(db.transaction.bind(db))
+
     try {
       const block = JSON.parse(msg.content.toString())
 
       // Check if block hasn't been inserted yet
-      const checkBlock = await db('blocks')
+      const checkBlock = await tx('blocks')
         .count('* as count')
         .where('index', block.height)
 
       if (checkBlock[0].count === 0) {
+
         // Store block
-        await db('blocks').insert({
+        await tx('blocks').insert({
           index: block.height,
           reference: block.reference,
           generator: block.generator,
@@ -37,7 +43,7 @@ module.exports = function (blockQueue) {
         })
 
         // Store block consensus
-        await db('consensus').insert({
+        await tx('consensus').insert({
           index: block.height,
           target: block['nxt-consensus']['base-target'],
           signature: block['nxt-consensus']['generation-signature']
@@ -46,7 +52,7 @@ module.exports = function (blockQueue) {
         // Store block feature
         if (block.features) {
           block.features.map(async (feature) => {
-            await db('features').insert({
+            await tx('features').insert({
               index: block.height,
               feature: feature
             })
@@ -54,17 +60,20 @@ module.exports = function (blockQueue) {
         }
 
         console.log('[Block] [' + block.height + '] collected')
-      } else {
+      }
+      else {
         console.warn('[Block] [' + block.height + '] duplicate')
       }
 
-      // Acknowledge
+      // Commit transaction and acknowledge message
+      await tx.commit()
       await blockQueue.ack(msg)
 
     } catch (err) {
-      // Negative Acknowledge -- send back to queue for retry
-      blockQueue.nack(msg)
-      console.error('[ Block]: ' + err.toString())
+      // roll back transaction and send message back to the queue
+      await tx.rollback()
+      await blockQueue.nack(msg)
+      console.error('[Block]: ' + err.toString())
     }
   }
 }

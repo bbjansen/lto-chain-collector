@@ -3,6 +3,8 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
+
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
 
@@ -10,9 +12,14 @@ const axios = require('axios')
 // Confirms the block against the node to see if it exists and valid.
 
 module.exports = function (confirmQueue) {
+
   confirmQueue.consume('confirmQueue', confirmBlock)
 
   async function confirmBlock (msg) {
+
+    // Handles db transaction
+    const tx = await promisify(db.transaction.bind(db))
+
     try {
       const block = JSON.parse(msg.content.toString())
       
@@ -25,13 +32,13 @@ module.exports = function (confirmQueue) {
       if (check.data.signature === block.signature) {
 
         // Update block
-        await db('blocks').update({
+        await tx('blocks').update({
           confirmed: true
         })
         .where('index', block.height)
 
         // Update tx belonging to block
-        await db('transactions').update({
+        await tx('transactions').update({
           confirmed: true
         })
         .where('block', block.height)
@@ -39,12 +46,14 @@ module.exports = function (confirmQueue) {
         console.log('[Block] [' + block.height + '] confirmed')
       }
 
-      // Acknowledge
-      confirmQueue.ack(msg)
+      // Commit transaction and acknowledge message
+      await tx.commit()
+      await confirmQueue.ack(msg)
 
     } catch (err) {
-      // Negative Acknowledge -- send back to queue for retry
-      confirmQueue.nack(msg)
+      // roll back transaction and send message back to the queue
+      await tx.rollback()
+      await confirmQueue.nack(msg)
       console.log('[Block] ' + err.toString())
     }
   }

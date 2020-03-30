@@ -3,15 +3,22 @@
 // Please see the included LICENSE file for more information.
 
 'use strict'
+
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
 
 // Consumes the address queue to check and update balances
 module.exports = function (addressQueue) {
+
   addressQueue.consume('addressQueue', updateAddress)
 
   async function updateAddress (msg) {
+
+    // Handles db transaction
+    const tx = await promisify(db.transaction.bind(db))
+
     try {
       const address = JSON.parse(msg.content.toString())
 
@@ -21,14 +28,14 @@ module.exports = function (addressQueue) {
       })
 
       // Check if address exist
-      const checkAddress = await db('addresses')
+      const checkAddress = await tx('addresses')
         .count('* as count')
         .where('address', address)
 
       if (checkAddress[0].count === 0) {
 
         // insert
-        await db('addresses').insert({
+        await tx('addresses').insert({
           address: address,
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
@@ -38,7 +45,7 @@ module.exports = function (addressQueue) {
       }  
       else {
         // update
-        await db('addresses').update({
+        await tx('addresses').update({
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
@@ -48,13 +55,14 @@ module.exports = function (addressQueue) {
         .where('address', address)
       }
 
-      // Acknowledge
-      addressQueue.ack(msg)
-      console.log('[Address] [' + address + '] processed')
+      // Commit transaction and acknowledge message
+      await tx.commit()
+      await addressQueue.ack(msg)
 
     } catch (err) {
-      // Reject Acknowledge -- drop from queue on failure
-      addressQueue.reject(msg)
+      // roll back transaction and drop from queue on failure
+      await tx.rollback()
+      await addressQueue.reject(msg)
       console.error('[Address] ' + err.toString())
     }
   }

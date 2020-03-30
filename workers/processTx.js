@@ -4,17 +4,22 @@
 
 'use strict'
 
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const moment = require('moment')
 const UUID = require('uuid/v4')
 
 // Consumes all items in tx queue
 module.exports = function (txQueue, addressQueue) {
+  
   txQueue.consume('txQueue', processTx)
 
   async function processTx (msg) {
+
+    // Handles db transaction
+    const tx = await promisify(db.transaction.bind(db))
+
     try {
-      
       const block = JSON.parse(msg.content.toString())
 
       // If tx: map and store block transactions
@@ -22,7 +27,7 @@ module.exports = function (txQueue, addressQueue) {
         block.transactions.map(async (tx) => {
 
           // Store Tx
-          await db('transactions').insert({
+          await tx('transactions').insert({
             id: tx.id,
             type: tx.type,
             block: block.height,
@@ -42,7 +47,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Proofs
           if (tx.proofs) {
             tx.proofs.map(async (proof) => {
-              await db('proofs').insert({
+              await tx('proofs').insert({
                 tid: tx.id,
                 proof: proof
               })
@@ -52,7 +57,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Anchors
           if (tx.anchors) {
             tx.anchors.map(async (anchor) => {
-              await db('anchors').insert({
+              await tx('anchors').insert({
                 tid: tx.id,
                 anchor: anchor
               })
@@ -62,7 +67,7 @@ module.exports = function (txQueue, addressQueue) {
           // Store Tx Transfers
           if (tx.transfers) {
             tx.transfers.map(async (transfer) => {
-              await db('transfers').insert({
+              await tx('transfers').insert({
                 tid: tx.id,
                 recipient: transfer.recipient,
                 amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
@@ -108,12 +113,14 @@ module.exports = function (txQueue, addressQueue) {
         }
       }
 
-      // Acknowledge
+      // Commit transaction and acknowledge message
+      await tx.commit()
       await txQueue.ack(msg)
-      
+
     } catch (err) {
-      // Negative Acknowledge -- send back to queue for retry
-      txQueue.nack(msg)
+      // roll back transaction and send message back to the queue
+      await tx.rollback()
+      await txQueue.nack(msg)
       console.error('[Tx]' + err.toString())
     }
   }
