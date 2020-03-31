@@ -4,24 +4,36 @@
 
 'use strict'
 
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
 
-// Processes unconfirmed blocks added in the queue when they got processed.
-// Confirms the block against the node to see if it exists and valid.
+// Processes unconfirmed blocks added by the producer collectBlocks.js
+// Confirms the block against the node to see if it exists and has a 
+// valid signature match.
 
-module.exports = function (confirmQueue) {
+module.exports = async function (confirmQueue) {
+  try {
+    // Consume one transaction at a time
+    confirmQueue.prefetch(1)
+    confirmQueue.consume('confirmQueue', confirmBlock)
 
-  // Consume one block at a time
-  confirmQueue.prefetch(1)
+  }
+  catch (err) {
 
-  confirmQueue.consume('confirmQueue', confirmBlock)
+    console.error('[Block]: ' + err.toString())
+  }
 
   async function confirmBlock (msg) {
 
+    // Parse message content
+    const block = JSON.parse(msg.content.toString())
+
+    // Handles db transaction
+    const txn = await promisify(db.transaction.bind(db))
+
     try {
-      const block = JSON.parse(msg.content.toString())
-      
+
       // Get block data
       const check = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/at/' + block.height, {
         timeout: +process.env.TIMEOUT
@@ -31,13 +43,13 @@ module.exports = function (confirmQueue) {
       if (check.data.signature === block.signature) {
 
         // Update block
-        await db('blocks').update({
+        await txn('blocks').update({
           confirmed: true
         })
         .where('index', block.height)
 
         // Update tx belonging to block
-        await db('transactions').update({
+        await txn('transactions').update({
           confirmed: true
         })
         .where('block', block.height)
@@ -45,13 +57,22 @@ module.exports = function (confirmQueue) {
         console.log('[Block] [' + block.height + '] confirmed')
       }
 
+      // Commit db transaction
+      txn.commit()
+
       // Acknowledge message
       await confirmQueue.ack(msg)
 
-    } catch (err) {
+    }
+    catch (err) {
+
+      // Rollback transaction
+      await txn.rollback()
+
       // Send message back to the queue for a retry
       await confirmQueue.nack(msg)
-      console.log('[Block] ' + err.toString())
+
+      console.log('[Block] [' + block.height + '] ' + err.toString())
     }
   }
 }

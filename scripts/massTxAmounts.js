@@ -11,7 +11,7 @@ calculateAmounts()
 async function calculateAmounts () {
   try {
     // Select Mass Tx and calculate sum
-    const txns = await db('transactions')
+    const txns = await txn('transactions')
       .leftJoin('transfers', 'transactions.id', 'transfers.tid')
       .select('transactions.id')
       .sum('transfers.amount as sum')
@@ -20,7 +20,7 @@ async function calculateAmounts () {
 
     // Update with amount
     for (let t of txns) {
-      await db('transactions')
+      await txn('transactions')
         .update({
           amount: tx.sum || 0
         })

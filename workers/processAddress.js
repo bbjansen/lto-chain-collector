@@ -4,22 +4,36 @@
 
 'use strict'
 
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
 const moment = require('moment')
 
-// Consumes the address queue to check and update balances
-module.exports = function (addressQueue) {
+// Processes all addreses it receives from the producer
+// collectBlocks.js - If the address is new, it gets added.
+// If the address exists, it gets updated.
 
-  // Consume one address at a time
-  addressQueue.prefetch(1)
+module.exports = async function (addressQueue) {
+  try {
 
-  addressQueue.consume('addressQueue', updateAddress)
+    // Consume one transaction at a time
+    addressQueue.prefetch(1)
+    addressQueue.consume('addressQueue', processAddress)
+  }
+  catch (err) {
 
-  async function updateAddress (msg) {
+    console.error('[Address]: ' + err.toString())
+  }
+
+  async function processAddress (msg) {
+
+    // Parse message content
+    const address = JSON.parse(msg.content.toString())
+
+    // Handles db transaction
+    const txn = await promisify(db.transaction.bind(db))
 
     try {
-      const address = JSON.parse(msg.content.toString())
 
       // Get Balance
       const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
@@ -27,24 +41,29 @@ module.exports = function (addressQueue) {
       })
 
       // Check if address exist
-      const checkAddress = await db('addresses')
+      const checkAddress = await txn('addresses')
         .count('* as count')
         .where('address', address)
+
+      let message
 
       if (checkAddress[0].count === 0) {
 
         // insert
-        await db('addresses').insert({
+        await txn('addresses').insert({
           address: address,
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER
         })
+      
+      
+        message = 'collected'
       }  
       else {
         // update
-        await db('addresses').update({
+        await txn('addresses').update({
           regular: balances.data.regular / +process.env.ATOMIC_NUMBER,
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
@@ -52,15 +71,26 @@ module.exports = function (addressQueue) {
           updated: moment().format('YYYY-MM-DD HH:mm:ss')
         })
         .where('address', address)
+
+        message = 'processed'
       }
+
+      // Commit db transaction
+      await txn.commit()
 
       // Aknowledge message
       await addressQueue.ack(msg)
 
+      console.log('[Address] [' + address + '] ' + message)
     } catch (err) {
+
+      // Rollback db transaction
+      await txn.rollback()
+
       // Send message back to the queue for a retry
-      await addressQueue.reject(msg)
-      console.error('[Address] ' + err.toString())
+      await addressQueue.nack(msg)
+
+      console.error('[Address] [' + address + '] ' + err.toString())
     }
   }
 }

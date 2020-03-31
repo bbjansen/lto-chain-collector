@@ -10,46 +10,46 @@ purgeBlocks(process.argv[2])
 
 async function purgeBlocks (start) {
   try {
-    const blocks = await db('blocks')
+    const blocks = await txn('blocks')
       .select('index')
       .where('index', '>=', start)
 
     const end = (+start + +blocks.length)
 
     for (let b of blocks) {
-      await db('blocks')
+      await txn('blocks')
         .where('index', b.index)
         .del()
 
-      await db('consensus')
+      await txn('consensus')
         .where('index', b.index)
         .del()
 
-      await db('features')
+      await txn('features')
         .where('index', b.index)
         .del()
 
       console.log('[Block] Purged ' + b.index)
     }
 
-    const txns = await db('transactions')
+    const txns = await txn('transactions')
       .select('id')
       .whereBetween('block', [start, end])
 
     for (let t of txns) {
-      await db('transactions')
+      await txn('transactions')
         .where('id', t.id)
         .del()
 
-      await db('proofs')
+      await txn('proofs')
         .where('tid', t.id)
         .del()
 
-      await db('anchors')
+      await txn('anchors')
         .where('tid', t.id)
         .del()
 
-      await db('transfers')
+      await txn('transfers')
         .where('tid', t.id)
         .del()
 

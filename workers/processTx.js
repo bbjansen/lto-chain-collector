@@ -4,33 +4,42 @@
 
 'use strict'
 
+const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const moment = require('moment')
 const UUID = require('uuid/v4')
 
 // Consumes all items in tx queue
 module.exports = function (txQueue, addressQueue) {
-  
-  // Consume one transaction at a time
-  txQueue.prefetch(1)
+  try {
 
-  txQueue.consume('txQueue', processTx)
+    // Consume one transaction at a time
+    txQueue.prefetch(1)
+    txQueue.consume('txQueue', processTx)
+  }
+  catch(err) {
+
+    console.error('[Tx]: ' + err.toString())
+  }
 
   async function processTx (msg) {
 
+    // Parse message content
     const block = JSON.parse(msg.content.toString())
 
-    try {
+    // Check for transactions
+    if (block.transactionCount >= 1) {
 
-      // Check for transactions
-      if (block.transactionCount >= 1) {
+      // loop through transactions
+      for (let tx of block.transactions) {
 
-        // loop through transactions
+        // Handles db transaction
+        const txn = await promisify(db.transaction.bind(db))
 
-        for (let tx of block.transactions) {
+        try {
 
           // Store Tx
-          await db('transactions').insert({
+          await txn('transactions').insert({
             id: tx.id,
             type: tx.type,
             block: block.height,
@@ -47,11 +56,10 @@ module.exports = function (txQueue, addressQueue) {
             leaseId: tx.leaseId,
             confirmed: +process.env.CONFIRM_BLOCKS === 0 ? true : false
           })
-          .then
 
           // Store Tx Proofs
           if (tx.proofs) {
-            await db('proofs').insert({
+            await txn('proofs').insert({
               tid: tx.id,
               proofs: JSON.stringify(tx.proofs)
             })
@@ -59,7 +67,7 @@ module.exports = function (txQueue, addressQueue) {
 
           // Store Tx Anchors
           if (tx.anchors) {
-            await db('anchors').insert({
+            await txn('anchors').insert({
               tid: tx.id,
               anchors: JSON.stringify(tx.anchors)
             })
@@ -72,7 +80,7 @@ module.exports = function (txQueue, addressQueue) {
           if (tx.transfers) {
             for(let tx of tx.transfers) {
 
-              await db('transfers').insert({
+              await txn('transfers').insert({
                 tid: tx.id,
                 recipient: transfer.recipient,
                 amount: (transfer.amount / +process.env.ATOMIC_NUMBER) || null
@@ -114,25 +122,32 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-          console.log('[Tx] [' + tx.id + '] processed')
+          // Commit db transaction
+          await txn.commit()
+
+          console.log('[Tx] [' + tx.id + '] collected')
+        }
+        catch(err) {
+      
+          // SQL errror 1062 = duplicate entry
+          if(err.errno === 1062) {
+            
+            // Commit db transaction
+            await txn.commit()
+
+            console.warn('[Tx] [' + tx.id + '] duplicate')
+          } else {
+
+            // Rollback db transaction
+            await txn.rollback()
+
+            console.error('[Block] [' + block.height + '] ' + err.toString())
+          }
         }
       }
-
-      // Acknowledge message
-      await txQueue.ack(msg)
-
-    } catch (err) {
-
-      // If duplicate entry, acknowledge message
-      if(err.errno === 1062) {
-        await txQueue.ack(msg)
-        console.warn('[Tx] [' + block.height + '] duplicate')
-      } else {
-
-        // Send message back to the queue for a retry
-        await txQueue.nack(msg)
-        console.error('[Tx]: ' + err.toString())
-      }
     }
+
+    // Acknowledge message
+    await txQueue.ack(msg)
   }
 }

@@ -8,8 +8,7 @@ const db = require('../utils/utils').knex
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
-// Collect newly produced blocks and sends them to the queue for internal processing.
-// Connects to a LTO node API
+// Collect new blocks and sends them to the queue for internal processing.
 
 module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
 
@@ -18,7 +17,9 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
   }, process.env.COLLECT_BLOCKS)
 
   async function collectBlocks () {
+
     try {
+      
       let lastIndex = 0
       let blockIndex = 0
       let blockCount = 0
