@@ -94,6 +94,7 @@ module.exports = function (txQueue, addressQueue) {
                   addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
                   correlationId: UUID()
                 })
+
               }
             }
           }
@@ -107,19 +108,20 @@ module.exports = function (txQueue, addressQueue) {
             // Create an array with unique addresses from each transaction
             let uniqueAddresses = new Set()
 
-            block.transactions.forEach((tx) => uniqueAddresses.add(tx.recipient))
-            block.transactions.forEach((tx) => uniqueAddresses.add(tx.sender))
+            for (let tx of block.transactions) { uniqueAddresses.add(tx.recipient) }
+            for (let tx of block.transactions) { uniqueAddresses.add(tx.sender) }
+
             uniqueAddresses = [...uniqueAddresses]
             uniqueAddresses.filter(Boolean)
 
             // Update balances of each address 
-            uniqueAddresses.forEach(address => {
+            for (let address of uniqueAddresses) {
               if(address) {
                 addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
                   correlationId: UUID()
                 })
               }
-            })
+            }
           }
 
           // Commit db transaction
