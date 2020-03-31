@@ -43,7 +43,8 @@ module.exports = function (txQueue, addressQueue) {
             timestamp: tx.timestamp,
             datetime: moment(tx.timestamp).format('YYYY-MM-DD HH:mm:ss'),
             version: tx.version,
-            leaseId: tx.leaseId
+            leaseId: tx.leaseId,
+            confirmed: +process.env.CONFIRM_BLOCKS === 0 ? true : false
           })
 
           // Store Tx Proofs
