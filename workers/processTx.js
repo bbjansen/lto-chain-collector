@@ -78,7 +78,7 @@ module.exports = function (txQueue, addressQueue) {
           // problem with mapping promise - transaction already ended
 
           if (tx.transfers) {
-            for(let tx of tx.transfers) {
+            for (let transfer of tx.transfers) {
 
               await txn('transfers').insert({
                 tid: tx.id,
