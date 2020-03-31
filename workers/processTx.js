@@ -18,8 +18,9 @@ module.exports = function (txQueue, addressQueue) {
 
   async function processTx (msg) {
 
+    const block = JSON.parse(msg.content.toString())
+
     try {
-      const block = JSON.parse(msg.content.toString())
 
       // Check for transactions
       if (block.transactionCount >= 1) {
@@ -86,7 +87,6 @@ module.exports = function (txQueue, addressQueue) {
             })
           }
 
-
           // If enabled, update unique recipient balance.
           // Useful to disable when wanting a quick
           // resync from scratch.
@@ -115,13 +115,21 @@ module.exports = function (txQueue, addressQueue) {
         })
       }
 
-      // Ackownledge message
+      // Acknowledge message
       await txQueue.ack(msg)
 
     } catch (err) {
-      // Send message back to the queue for a retry
-      await txQueue.nack(msg)
-      console.error('[Tx]' + err.toString())
+
+      // If duplicate entry, acknowledge message
+      if(err.errno === 1062) {
+        await txQueue.ack(msg)
+        console.warn('[Tx] [' + block.height + '] duplicate')
+      } else {
+
+        // Send message back to the queue for a retry
+        await txQueue.nack(msg)
+        console.error('[Tx]: ' + err.toString())
+      }
     }
   }
 }
