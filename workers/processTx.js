@@ -25,8 +25,9 @@ module.exports = function (txQueue, addressQueue) {
       // Check for transactions
       if (block.transactionCount >= 1) {
 
-        // map transactions
-        block.transactions.map(async (tx) => {
+        // loop through transactions
+
+        for (let tx of block.transactions) {
 
           // Store Tx
           await db('transactions').insert({
@@ -46,6 +47,7 @@ module.exports = function (txQueue, addressQueue) {
             leaseId: tx.leaseId,
             confirmed: +process.env.CONFIRM_BLOCKS === 0 ? true : false
           })
+          .then
 
           // Store Tx Proofs
           if (tx.proofs) {
@@ -68,7 +70,7 @@ module.exports = function (txQueue, addressQueue) {
           // problem with mapping promise - transaction already ended
 
           if (tx.transfers) {
-            tx.transfers.map(async (transfer) => {
+            for(let tx of tx.transfers) {
 
               await db('transfers').insert({
                 tid: tx.id,
@@ -85,7 +87,7 @@ module.exports = function (txQueue, addressQueue) {
                   correlationId: UUID()
                 })
               }
-            })
+            }
           }
 
           // If enabled, update unique recipient balance.
@@ -113,7 +115,7 @@ module.exports = function (txQueue, addressQueue) {
           }
 
           console.log('[Tx] [' + tx.id + '] processed')
-        })
+        }
       }
 
       // Acknowledge message

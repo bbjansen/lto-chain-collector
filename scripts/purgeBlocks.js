@@ -16,7 +16,7 @@ async function purgeBlocks (start) {
 
     const end = (+start + +blocks.length)
 
-    blocks.map(async (b) => {
+    for (let b of blocks) {
       await db('blocks')
         .where('index', b.index)
         .del()
@@ -30,13 +30,13 @@ async function purgeBlocks (start) {
         .del()
 
       console.log('[Block] Purged ' + b.index)
-    })
+    }
 
     const txns = await db('transactions')
       .select('id')
       .whereBetween('block', [start, end])
 
-    txns.map(async (t) => {
+    for (let t of txns) {
       await db('transactions')
         .where('id', t.id)
         .del()
@@ -54,7 +54,7 @@ async function purgeBlocks (start) {
         .del()
 
       console.log('[Purged] Tx ' + t.id)
-    })
+    }
 
     console.log('[Purged] Block ' + start + ' - ' + end)
   } catch (err) {

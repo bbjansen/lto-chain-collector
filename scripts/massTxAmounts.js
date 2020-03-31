@@ -19,14 +19,14 @@ async function calculateAmounts () {
       .groupBy('transactions.id')
 
     // Update with amount
-    txns.map(async (tx) => {
+    for (let t of txns) {
       await db('transactions')
         .update({
           amount: tx.sum || 0
         })
         .where('id', tx.id)
       console.log('[Tx] [' + tx.id + '] updated with an amount of ' + tx.sum + '.')
-    })
+    }
   } catch (err) {
     console.error(err)
   }
