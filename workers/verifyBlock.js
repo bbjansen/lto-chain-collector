@@ -66,7 +66,7 @@ module.exports = async function (confirmQueue) {
     }
     catch (err) {
 
-      // Rollback transaction
+      // Rollback db transaction
       await txn.rollback()
 
       // Send message back to the queue for a retry
