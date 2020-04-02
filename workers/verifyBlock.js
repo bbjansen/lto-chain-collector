@@ -7,16 +7,17 @@
 const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 const axios = require('axios')
+const UUID = require('uuid/v4')
 
-// Processes unconfirmed blocks added by the producer collectBlocks.js
+// Processes unverified blocks added by the producer collectBlocks.js
 // Confirms the block against the node to see if it exists and has a 
 // valid signature match.
 
-module.exports = async function (confirmQueue) {
+module.exports = async function (verifyQueue) {
   try {
-    // Consume one transaction at a time
-    confirmQueue.prefetch(1)
-    confirmQueue.consume('confirmQueue', confirmBlock)
+    // Consume one block at a time
+    verifyQueue.prefetch(1)
+    verifyQueue.consume('verifyQueue', confirmBlock)
 
   }
   catch (err) {
@@ -42,26 +43,27 @@ module.exports = async function (confirmQueue) {
       // Validate signature
       if (check.data.signature === block.signature) {
 
-        // Update block
+        // Update block verified status
         await txn('blocks').update({
-          confirmed: true
+          verified: true
         })
         .where('index', block.height)
 
-        // Update tx belonging to block
+        // Update all transactions verified statuses belonging to the block.
         await txn('transactions').update({
-          confirmed: true
+          verified: true
         })
         .where('block', block.height)
 
-        console.log('[Block] [' + block.height + '] confirmed')
+        console.log('[Block] [' + block.height + '] verified')
       }
+
 
       // Commit db transaction
       txn.commit()
 
       // Acknowledge message
-      await confirmQueue.ack(msg)
+      await verifyQueue.ack(msg)
 
     }
     catch (err) {
@@ -70,7 +72,7 @@ module.exports = async function (confirmQueue) {
       await txn.rollback()
 
       // Send message back to the queue for a retry
-      await confirmQueue.nack(msg)
+      await verifyQueue.nack(msg)
 
       console.log('[Block] [' + block.height + '] ' + err.toString())
     }

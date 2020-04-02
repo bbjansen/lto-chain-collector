@@ -44,7 +44,7 @@ module.exports = async function (blockQueue) {
         version: block.version || 0,
         timestamp: block.timestamp,
         datetime: moment(block.timestamp).format('YYYY-MM-DD HH:mm:ss'),
-        confirmed: +process.env.CONFIRM_BLOCKS === 0 ? true : false
+        verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false
       })
   
       // Store block consensus

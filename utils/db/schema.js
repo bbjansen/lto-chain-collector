@@ -21,7 +21,7 @@ db.schema.hasTable('blocks').then(function (exists) {
       table.integer('version').notNullable()
       table.bigInteger('timestamp').notNullable()
       table.datetime('datetime')
-      table.boolean('confirmed').defaultTo(false)
+      table.boolean('verified').defaultTo(false)
     })
   }
 })
@@ -71,7 +71,7 @@ db.schema.hasTable('transactions').then(function (exists) {
       table.datetime('datetime')
       table.integer('version')
       table.string('leaseId')
-      table.boolean('confirmed').defaultTo(false)
+      table.boolean('verified').defaultTo(false)
     })
   }
 })

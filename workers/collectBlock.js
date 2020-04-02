@@ -10,7 +10,7 @@ const UUID = require('uuid/v4')
 
 // Collect new blocks and sends them to the queue for internal processing.
 
-module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
+module.exports = function (blockQueue, verifyQueue, txQueue, addressQueue) {
 
   setInterval(function () {
     collectBlocks()
@@ -46,14 +46,9 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
       // Calculate how many blocks we are behind
       const heightDiff = lastIndex - blockIndex
 
-      // Check we are behind (n-1), if not halt.
-      // Reason for n-1 is because when a newly produced block
-      // is announced to the network, it may not contain all
-      // final transacstions yet. For now ignore the latest block
-      // In future it would be nice to report the latest block,
-      // and update its tx count when processing n + 1 block.
-
-      if (blockIndex >= lastIndex || heightDiff <= 1) {
+      // Check we are behind, if not abort.
+      if (heightDiff < 1) {
+        console.log('[Block] [' + lastIndex + '] synced')
         return
       }
 
@@ -100,7 +95,7 @@ module.exports = function (blockQueue, confirmQueue, txQueue, addressQueue) {
         // plugin
         
         if(+process.env.CONFIRM_BLOCKS) {
-          confirmQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
+          verifyQueue.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
             correlationId: UUID(),
             headers: { 'x-delay': +process.env.DELAY_BLOCKS }
           })

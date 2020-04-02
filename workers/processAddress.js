@@ -16,7 +16,9 @@ const moment = require('moment')
 module.exports = async function (addressQueue) {
   try {
 
-    // Consume one transaction at a time
+    // Consume one message at a time for optimum speed,
+    // stability and data integrity.
+
     addressQueue.prefetch(1)
     addressQueue.consume('addressQueue', processAddress)
   }

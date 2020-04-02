@@ -30,7 +30,7 @@ module.exports = function (txQueue, addressQueue) {
     // Check for transactions
     if (block.transactionCount >= 1) {
 
-      // loop through transactions
+      // Loop through all the blocks transactions
       for (let tx of block.transactions) {
 
         // Handles db transaction
@@ -54,7 +54,7 @@ module.exports = function (txQueue, addressQueue) {
             datetime: moment(tx.timestamp).format('YYYY-MM-DD HH:mm:ss'),
             version: tx.version,
             leaseId: tx.leaseId,
-            confirmed: +process.env.CONFIRM_BLOCKS === 0 ? true : false
+            verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false
           })
 
           // Store Tx Proofs
@@ -74,9 +74,6 @@ module.exports = function (txQueue, addressQueue) {
           }
 
           // Store Tx Transfers
-          // not part of db transaction at the moment
-          // problem with mapping promise - transaction already ended
-
           if (tx.transfers) {
             for (let transfer of tx.transfers) {
 
