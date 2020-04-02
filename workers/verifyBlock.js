@@ -30,7 +30,7 @@ module.exports = async function (verifyQueue, txQueue) {
     // Parse message content
     const block = JSON.parse(msg.content.toString())
 
-    // Handles db transaction
+    // Start db transaction
     const txn = await promisify(db.transaction.bind(db))
 
     try {

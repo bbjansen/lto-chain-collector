@@ -33,7 +33,7 @@ module.exports = function (txQueue, addressQueue) {
       // Loop through all the blocks transactions
       for (let tx of block.transactions) {
 
-        // Handles db transaction
+        // Start db transaction
         const txn = await promisify(db.transaction.bind(db))
 
         try {

@@ -32,7 +32,7 @@ module.exports = async function (addressQueue) {
     // Parse message content
     const address = JSON.parse(msg.content.toString())
 
-    // Handles db transaction
+    // Start db transaction
     const txn = await promisify(db.transaction.bind(db))
 
     try {
