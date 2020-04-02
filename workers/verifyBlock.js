@@ -13,7 +13,7 @@ const UUID = require('uuid/v4')
 // Confirms the block against the node to see if it exists and has a 
 // valid signature match.
 
-module.exports = async function (verifyQueue) {
+module.exports = async function (verifyQueue, txQueue) {
   try {
     // Consume one block at a time
     verifyQueue.prefetch(1)
@@ -43,6 +43,18 @@ module.exports = async function (verifyQueue) {
       // Validate signature
       if (check.data.signature === block.signature) {
 
+        // Add any transactions that weren't added yet in case the block
+        // was freshly forged during the collecting process. This is
+        // necessary because transactions are added by a different 
+        // producer than the one who forges the block.
+
+        // We achieve this by simply sending the block once again to 
+        // the transaction queue which ignores duplicates.
+
+        txQueue.sendToQueue('txQueue', new Buffer(JSON.stringify(block)), {
+          correlationId: UUID()
+        })
+
         // Update block verified status
         await txn('blocks').update({
           verified: true
@@ -57,7 +69,6 @@ module.exports = async function (verifyQueue) {
 
         console.log('[Block] [' + block.height + '] verified')
       }
-
 
       // Commit db transaction
       txn.commit()
