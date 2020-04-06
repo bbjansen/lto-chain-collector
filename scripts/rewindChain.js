@@ -7,11 +7,11 @@ const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
 
 async function rewindChain (target) {
+  
+  // Handles db transaction
+  const txn = await promisify(db.transaction.bind(db))
+
   try {
-
-    // Handles db transaction
-    const txn = await promisify(db.transaction.bind(db))
-
 
     // Grab all blocks equal or greater than target.
     const blocks = await txn('blocks')
