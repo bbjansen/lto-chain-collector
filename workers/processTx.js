@@ -51,7 +51,6 @@ module.exports = function (txQueue, addressQueue) {
             signature: tx.signature,
             attachment: tx.attachment,
             timestamp: tx.timestamp,
-            datetime: moment(tx.timestamp).format('YYYY-MM-DD HH:mm:ss'),
             version: tx.version,
             leaseId: tx.leaseId,
             verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false

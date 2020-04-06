@@ -20,7 +20,6 @@ db.schema.hasTable('blocks').then(function (exists) {
       table.decimal('fee', [15, 9]).defaultTo(0)
       table.integer('version').notNullable()
       table.bigInteger('timestamp').notNullable()
-      table.datetime('datetime')
       table.boolean('verified').defaultTo(false)
     })
   }
@@ -68,7 +67,6 @@ db.schema.hasTable('transactions').then(function (exists) {
       table.string('signature')
       table.string('attachment')
       table.bigInteger('timestamp').notNullable()
-      table.datetime('datetime')
       table.integer('version')
       table.string('leaseId')
       table.boolean('verified').defaultTo(false)
@@ -127,7 +125,7 @@ db.schema.hasTable('addresses').then(function (exists) {
       table.decimal('generating', [15, 9]).defaultTo(0)
       table.decimal('available', [15, 9]).defaultTo(0)
       table.decimal('effective', [15, 9]).defaultTo(0)
-      table.datetime('updated').defaultTo(db.fn.now())
+      table.bigInteger('updated').notNullable()
     })
   }
 })

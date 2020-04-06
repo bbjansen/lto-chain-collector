@@ -43,7 +43,6 @@ module.exports = async function (blockQueue) {
         fee: block.fee / +process.env.ATOMIC_NUMBER || 0,
         version: block.version || 0,
         timestamp: block.timestamp,
-        datetime: moment(block.timestamp).format('YYYY-MM-DD HH:mm:ss'),
         verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false
       })
   
