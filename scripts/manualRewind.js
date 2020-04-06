@@ -4,6 +4,7 @@
 'use strict'
 
 require('dotenv').config('../')
-require('./rewindChain')
+
+const rewindChain = require('./rewindChain')
 
 rewindChain(process.argv[2])
