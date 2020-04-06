@@ -3,13 +3,8 @@
 // Please see the included LICENSE file for more information.
 'use strict'
 
-
-// require('dotenv').config('../')
-
 const promisify = require('../utils/utils').promisify
 const db = require('../utils/utils').knex
-
-// rewindChain(process.argv[2])
 
 async function rewindChain (target) {
   try {
@@ -87,3 +82,5 @@ async function rewindChain (target) {
     console.error('[Rewind]' + err.toString())
   }
 }
+
+module.exports = rewindChain

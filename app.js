@@ -39,10 +39,14 @@ async function init () {
   // Bind queues with delayed message exchange
   verifyQueue.bindQueue('verifyQueue', 'delayed', 'block')
 
+
+  // Load scripts 
+  const rewindChain = require('./scripts/rewindChain')
+
   // Load producers and workers
   require('./workers/collectBlock')(blockQueue, verifyQueue, txQueue, addressQueue)
   require('./workers/processBlock')(blockQueue)
   require('./workers/processTx')(txQueue, addressQueue)
   require('./workers/processAddress')(addressQueue)
-  require('./workers/verifyBlock')(verifyQueue, txQueue)
+  require('./workers/verifyBlock')(verifyQueue, txQueue, rewindChain)
 }

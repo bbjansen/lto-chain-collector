@@ -13,7 +13,7 @@ const UUID = require('uuid/v4')
 // Confirms the block against the node to see if it exists and has a 
 // valid signature match.
 
-module.exports = async function (verifyQueue, txQueue) {
+module.exports = async function (verifyQueue, blockQueue, txQueue, rewindChain) {
   try {
     // Consume one block at a time
     verifyQueue.prefetch(1)
@@ -69,6 +69,27 @@ module.exports = async function (verifyQueue, txQueue) {
 
         console.log('[Block] [' + block.height + '] verified')
       }
+      //else {
+
+        // Oooh snap!
+
+        // Signature mismatch happens when the signature at the time
+        // of collection does not match when the current signature
+        // the network outputs for the given block.
+         
+        // A block signature is a hash that mining node acquires when
+        // it signs the generated block with the private key of
+        // the mining account.
+
+        // Stop the collecting script
+        // blockCollector.stop()
+
+        // Destroy the block processing queue
+        //blockQueue.destroy()
+
+        // Rewind the chain to one block before mismatched block
+        // rewindChain(+block.index - 1)
+      //}
 
       // Commit db transaction
       txn.commit()
