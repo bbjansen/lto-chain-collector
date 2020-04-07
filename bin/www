@@ -2,6 +2,17 @@
 
 // Load .env files and app.js
 require('dotenv').config()
-require('../app')
 
-console.info(`Starting LTO Chain Cache Collector`)
+const figlet = require('figlet')
+
+console.info(figlet.textSync('LTO Chain Collector', {
+    //font: 'ghost',
+    horizontalLayout: 'fitted',
+    verticalLayout: 'fitted'
+}));
+
+console.info('2020 Edition')
+console.info('@bbjansen')
+
+require('../bootstrap')
+

@@ -3,11 +3,16 @@
 // Please see the included LICENSE file for more information.
 'use strict'
 
-const promisify = require('../utils/utils').promisify
-const db = require('../utils/utils').knex
 
-async function rewindChain (target) {
-  
+// Do not even think about using this function to rewind tens of thousands,
+// let alone hundreds of thousands of blocks. Preferably should only be used 
+// for less than 500 blocks.
+
+const promisify = require('../libs').promisify
+const db = require('../libs').knex
+
+module.exports = async function rewindChain (target) {
+
   // Handles db transaction
   const txn = await promisify(db.transaction.bind(db))
 
@@ -37,7 +42,7 @@ async function rewindChain (target) {
         .where('index', b.index)
         .del()
 
-      console.log('[Block] Rewind ' + b.index)
+      console.log('[Block] [' + b.index + '] rewinded')
     }
 
 
@@ -66,13 +71,16 @@ async function rewindChain (target) {
         .where('tid', t.id)
         .del()
 
-      console.log('[Rewind] Tx ' + t.id)
+      console.log('[Tx] [' + t.id + '] rewinded')
     }
 
     // Commit db transaction
     await txn.commit()
 
-    console.log('[Rewind] Block ' + target + ' - ' + end)
+    console.log('[Block] [' + target + ' - ' + end + '] rewinded')
+
+    // Return message with success
+    return true
 
   } catch (err) {
 
@@ -80,7 +88,8 @@ async function rewindChain (target) {
     await txn.rollback()
 
     console.error('[Rewind]' + err.toString())
+
+    // Return message with success
+    return false
   }
 }
-
-module.exports = rewindChain

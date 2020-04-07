@@ -4,18 +4,19 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
-const db = require('../utils/utils').knex
-const moment = require('moment')
+const promisify = require('../libs').promisify
+const db = require('../libs').knex
 const UUID = require('uuid/v4')
 
 // Consumes all items in tx queue
-module.exports = function (txQueue, addressQueue) {
+module.exports = async function (Transactions, Addresses) {
   try {
 
-    // Consume one transaction at a time
-    txQueue.prefetch(1)
-    txQueue.consume('txQueue', processTx)
+    // 1:1
+    // Consume one message at a time for optimum speed,
+    // stability and data integrity.
+    Transactions.prefetch(1)
+    Transactions.consume('transactions', processTx)
   }
   catch(err) {
 
@@ -53,7 +54,7 @@ module.exports = function (txQueue, addressQueue) {
             timestamp: tx.timestamp,
             version: tx.version,
             leaseId: tx.leaseId,
-            verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false
+            verified: +process.env.VERIFY_CACHE === 0 ? true : false
           })
 
           // Store Tx Proofs
@@ -87,7 +88,7 @@ module.exports = function (txQueue, addressQueue) {
               // resync from scratch.
 
               if(+process.env.UPDATE_ADDRESSES) {
-                  addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(transfer.recipient)), {
+                  await Addresses.sendToQueue('addresses', new Buffer(JSON.stringify(transfer.recipient)), {
                   correlationId: UUID()
                 })
 
@@ -113,7 +114,7 @@ module.exports = function (txQueue, addressQueue) {
             // Update balances of each address 
             for (let address of uniqueAddresses) {
               if(address) {
-                addressQueue.sendToQueue('addressQueue', new Buffer(JSON.stringify(address)), {
+                await Addresses.sendToQueue('addresses', new Buffer(JSON.stringify(address)), {
                   correlationId: UUID()
                 })
               }
@@ -146,6 +147,6 @@ module.exports = function (txQueue, addressQueue) {
     }
 
     // Acknowledge message
-    await txQueue.ack(msg)
+    await Transactions.ack(msg)
   }
 }

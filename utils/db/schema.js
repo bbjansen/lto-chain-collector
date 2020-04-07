@@ -3,7 +3,7 @@
 // Please see the included LICENSE file for more information.
 'use strict'
 
-const db = require('../utils').knex
+const db = require('../../libs').knex
 
 // Create 'blocks' table if it does not exist
 db.schema.hasTable('blocks').then(function (exists) {
@@ -125,7 +125,7 @@ db.schema.hasTable('addresses').then(function (exists) {
       table.decimal('generating', [15, 9]).defaultTo(0)
       table.decimal('available', [15, 9]).defaultTo(0)
       table.decimal('effective', [15, 9]).defaultTo(0)
-      table.bigInteger('updated').notNullable()
+      table.bigInteger('updated').notNullable().defaultTo(~~(Date.now() / 1000));
     })
   }
 })

@@ -44,13 +44,41 @@ const bindQueue = (channel, queueName, exchangeName, routingKey) => {
   })
 }
 
-const sendToQueue = (channel, queueName, buffer) => {
-  channel.sendToQueue(queueName, buffer)
+const deleteQueue = (channel, queueName) => {
+  return new Promise((resolve, reject) => {
+    channel.deleteQueue(queueName)
+      .then(binded => resolve(channel))
+      .catch(err => reject(err))
+  })
 }
 
-const publish = (channel, exchangeName, routingKey, buffer) => {
-  channel.publish(exchangeName, routingKey, buffer)
+
+const purgeQueue = (channel, queueName) => {
+  return new Promise((resolve, reject) => {
+    channel.purgeQueue(queueName)
+      .then(binded => resolve(channel))
+      .catch(err => reject(err))
+  })
 }
+
+
+const sendToQueue = (channel, queueName, buffer) => {
+  return new Promise((resolve, reject) => {
+    channel.sendToQueue(queueName, buffer)
+      .then(binded => resolve(channel))
+      .catch(err => reject(err))
+  })
+}
+
+
+const publish = (channel, exchangeName, routingKey, buffer) => {
+  return new Promise((resolve, reject) => {
+    channel.publish(exchangeName, routingKey, buffer)
+      .then(binded => resolve(channel))
+      .catch(err => reject(err))
+  })
+}
+
 
 const connection = async (queueName = 'msg.*') => {
   var conn = await connect()

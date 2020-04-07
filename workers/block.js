@@ -4,18 +4,19 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
-const db = require('../utils/utils').knex
-const moment = require('moment')
+const promisify = require('../libs').promisify
+const db = require('../libs').knex
 
 // Processes all blocks it receives from the producer collectBlock.js
 
-module.exports = async function (blockQueue) {
+module.exports = async function (Blocks) {
   try {
 
-    // Consume one block at a time
-    blockQueue.prefetch(1)
-    blockQueue.consume('blockQueue', processBlock)
+    // 1:1
+    // Consume one message at a time for optimum speed,
+    // stability and data integrity.
+    Blocks.prefetch(1)
+    Blocks.consume('blocks', processBlock)
   }
   catch(err) {
 
@@ -43,7 +44,7 @@ module.exports = async function (blockQueue) {
         fee: block.fee / +process.env.ATOMIC_NUMBER || 0,
         version: block.version || 0,
         timestamp: block.timestamp,
-        verified: +process.env.CONFIRM_BLOCKS === 0 ? true : false
+        verified: +process.env.VERIFY_CACHE === 0 ? true : false
       })
   
       // Store block consensus
@@ -65,7 +66,7 @@ module.exports = async function (blockQueue) {
       await txn.commit()
     
       // Acknowledge message
-      await blockQueue.ack(msg)
+      await Blocks.ack(msg)
   
       console.log('[Block] [' + block.height + '] collected')
   
@@ -75,7 +76,7 @@ module.exports = async function (blockQueue) {
       if(err.errno === 1062) {
   
         // Acknowledge message 
-        await blockQueue.ack(msg)
+        await Blocks.ack(msg)
   
         console.warn('[Block] [' + block.height + '] duplicate')
       } else {
@@ -84,7 +85,7 @@ module.exports = async function (blockQueue) {
         await txn.rollback()
 
         // Send message back to the queue for a retry
-        await blockQueue.nack(msg)
+        await Blocks.nack(msg)
 
         console.error('[Block] [' + block.height + '] ' + err.toString())
       }

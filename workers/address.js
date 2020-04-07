@@ -4,23 +4,26 @@
 
 'use strict'
 
-const promisify = require('../utils/utils').promisify
-const db = require('../utils/utils').knex
+const promisify = require('../libs').promisify
+const db = require('../libs').knex
 const axios = require('axios')
-const moment = require('moment')
 
 // Processes all addreses it receives from the producer
 // collectBlocks.js - If the address is new, it gets added.
 // If the address exists, it gets updated.
 
-module.exports = async function (addressQueue) {
+module.exports = async function (Addresses) {
   try {
 
+    // 1:1
     // Consume one message at a time for optimum speed,
     // stability and data integrity.
+    Addresses.prefetch(1)
 
-    addressQueue.prefetch(1)
-    addressQueue.consume('addressQueue', processAddress)
+    if(+process.env.UPDATE_ADDRESSES) { 
+      Addresses.consume('addresses', processAddress)
+    }
+
   }
   catch (err) {
 
@@ -70,7 +73,7 @@ module.exports = async function (addressQueue) {
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
-          updated: moment().format('YYYY-MM-DD HH:mm:ss')
+          updated: ~~(Date.now() / 1000)
         })
         .where('address', address)
 
@@ -81,7 +84,7 @@ module.exports = async function (addressQueue) {
       await txn.commit()
 
       // Aknowledge message
-      await addressQueue.ack(msg)
+      await Addresses.ack(msg)
 
       console.log('[Address] [' + address + '] ' + message)
     } catch (err) {
@@ -90,7 +93,7 @@ module.exports = async function (addressQueue) {
       await txn.rollback()
 
       // Send message back to the queue for a retry
-      await addressQueue.nack(msg)
+      await Addresses.nack(msg)
 
       console.error('[Address] [' + address + '] ' + err.toString())
     }

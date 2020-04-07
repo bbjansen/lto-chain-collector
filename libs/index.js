@@ -4,5 +4,5 @@
 'use strict'
 
 module.exports.promisify = require('./promisify.js')
-module.exports.knex = require('./db/knex.js')
+module.exports.knex = require('./knex.js')
 module.exports.rabbitmq = require('./rabbitmq.js')
