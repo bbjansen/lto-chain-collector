@@ -68,7 +68,7 @@ module.exports = async function (processAddress) {
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
-          updated: Date.now().getTime()
+          created:  new Date().getTime(),
         })
       
       
@@ -81,7 +81,7 @@ module.exports = async function (processAddress) {
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
-          updated: Date.now().getTime()
+          updated: new Date().getTime()
         })
         .where('address', address)
 
