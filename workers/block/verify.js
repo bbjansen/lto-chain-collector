@@ -61,7 +61,7 @@ module.exports = async function (verifyBlock, Collector, storeBlock, processBloc
 
 
       // It's a match!
-      if (check.data.signature !== block.signature) {
+      if (check.data.signature === block.signature) {
 
         // Mark block as verified.
         await txn('blocks').update({
