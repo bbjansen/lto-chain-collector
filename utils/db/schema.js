@@ -125,7 +125,7 @@ db.schema.hasTable('addresses').then(function (exists) {
       table.decimal('generating', [15, 9]).defaultTo(0)
       table.decimal('available', [15, 9]).defaultTo(0)
       table.decimal('effective', [15, 9]).defaultTo(0)
-      table.bigInteger('updated').notNullable().defaultTo(~~(Date.now() / 1000));
+      table.bigInteger('updated').notNullable().defaultTo(Date.now())
     })
   }
 })

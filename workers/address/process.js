@@ -80,7 +80,7 @@ module.exports = async function (processAddress) {
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
-          updated: ~~(Date.now() / 1000)
+          updated: Date.now()
         })
         .where('address', address)
 
