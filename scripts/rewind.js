@@ -46,14 +46,14 @@ module.exports = async function rewindChain (target) {
     }
 
 
-    // Select all transasctions
+    // Select all transaction(s)
     const txns = await txn('transactions')
       .select('id')
       .where('block', '>=', target)
 
     
     // Loop through all transactions and delete associated
-    // proofs, anchors and tranfers.
+    // proofs, anchors and tranfer(s).
     for (let t of txns) {
       await txn('transactions')
         .where('id', t.id)

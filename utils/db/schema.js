@@ -12,14 +12,14 @@ db.schema.hasTable('blocks').then(function (exists) {
 
     return db.schema.createTable('blocks', function (table) {
       table.integer('index').primary().notNullable()
-      table.string('reference').notNullable()
-      table.string('generator').notNullable()
-      table.string('signature').notNullable()
-      table.integer('size').notNullable()
-      table.integer('count').notNullable()
-      table.decimal('fee', [15, 9]).defaultTo(0)
-      table.integer('version').notNullable()
-      table.bigInteger('timestamp').notNullable()
+      table.string('reference').nullable()
+      table.string('generator').nullable()
+      table.string('signature').nullable()
+      table.integer('size').nullable()
+      table.integer('count').nullable()
+      table.decimal('fee', [15, 9]).nullable(0)
+      table.integer('version').nullable()
+      table.bigInteger('timestamp').nullable()
       table.boolean('verified').defaultTo(false)
     })
   }

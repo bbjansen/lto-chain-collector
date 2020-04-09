@@ -20,16 +20,16 @@ const db = require('../libs').knex;
 (async () => {
     try {
       
-        const Blocks = await require('../libs/rabbitmq')('blocks')
-        const Transactions = await require('../libs/rabbitmq')('transactions')
-        const Verify = await require('../libs/rabbitmq')('verify')
-        const Addresses = await require('../libs/rabbitmq')('addresses')
+        const storeBlock = await require('../libs/rabbitmq')('storeBlock')
+        const processBlock = await require('../libs/rabbitmq')('processBlock')
+        const verifyBlock = await require('../libs/rabbitmq')('verifyBlock')
+        const processAddress = await require('../libs/rabbitmq')('processAddress')
 
         // Delete Queues
-        await Addresses.deleteQueue('addresses')
-        await Blocks.deleteQueue('blocks')
-        await Transactions.deleteQueue('transactions')
-        await Verify.deleteQueue('verify')
+        await storeBlock.deleteQueue('storeBlock')
+        await processBlock.deleteQueue('processBlock')
+        await verifyBlock.deleteQueue('verifyBlock')
+        await processAddress.deleteQueue('processAddress')
 
         // Drop all tables
         await db.schema.dropTableIfExists('blocks')
@@ -42,10 +42,10 @@ const db = require('../libs').knex;
         await db.schema.dropTableIfExists('addresses')
 
         // Setup queues
-        await Addresses.assertQueue('addresses')
-        await Blocks.assertQueue('blocks')
-        await Transactions.assertQueue('transactions')
-        await Verify.assertQueue('verify')
+        await storeBlock.assertQueue('storeBlock')
+        await processBlock.assertQueue('processBlock')
+        await verifyBlock.assertQueue('verifyBlock')
+        await processAddress.assertQueue('processAddress')
 
         // Setup database tables
         require('../utils/db/schema');

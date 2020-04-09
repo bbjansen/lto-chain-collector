@@ -8,27 +8,31 @@ const db = require('../libs').knex
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
-// Collect new blocks and sends them to the queue for internal processing.
-module.exports = async function (Blocks, Verifier, Transactions, Addresses) {
+// This is the start of the workflow. The Collector fetches blocks from the
+// public chain in increments of 100 and adds each block to the `storeBlock`
+// queue for the next workflow.
+
+module.exports = async function (storeBlock) {
   try {
     
     let lastIndex = 0
     let blockIndex = 0
     let blockCount = 0
 
-    // Grab the network height and last collected block index
+    // Let's grab the last block announced by the network 
     lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/height', {
       timeout: +process.env.TIMEOUT
     })
 
+    lastIndex = lastIndex.data.height
+
+    // Retrieve last recorded block in our database
     blockIndex = await db('blocks')
       .select('index')
       .orderBy('index', 'desc')
       .limit(1)
 
-    // Format
-    lastIndex = lastIndex.data.height
-
+    // Account for a fresh sync with no recorded blocks
     if (blockIndex.length >= 1) {
       blockIndex = blockIndex[0].index
     } else {
@@ -67,44 +71,17 @@ module.exports = async function (Blocks, Verifier, Transactions, Addresses) {
     // Calculate end range
     const endIndex = (blockIndex + blockCount)
 
-    // Get Blocks
+    // Fetch the next batch of blocks
     const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
       timeout: +process.env.TIMEOUT
     })
 
-    // Process blocks
     for (let block of blocks.data) {
       
-      // Add each block to the queue for processing
-      await Blocks.sendToQueue('blocks', new Buffer(JSON.stringify(block)), {
+      // Add each block to the `storeBlock` queue where they will be recorded in the database
+      await storeBlock.sendToQueue('storeBlock', new Buffer(JSON.stringify(block)), {
         correlationId: UUID(),
       })
-
-      // Add each block to the tx queue for processing
-      await Transactions.sendToQueue('transactions', new Buffer(JSON.stringify(block)), {
-        correlationId: UUID()
-      })
-
-      // If enabled, skip updating block generator balance.
-      // Useful to disable when wanting a quick resync from scratch.
-
-      if(+process.env.UPDATE_ADDRESSES) {
-        await Addresses.sendToQueue('addresses', new Buffer(JSON.stringify(block.generator)), {
-          correlationId: UUID(),
-        })
-      }
-
-      // If enabled, add each block to a confirm queue for processing
-      // with a configurable delayed time (ms) and enabled by default.
-      // Disable for quicker sync from zero.
-
-      if(+process.env.VERIFY_CACHE) {
-        await Verifier.publish('delayed', 'block', new Buffer(JSON.stringify(block)), {
-          correlationId: UUID(),
-          headers: { 'x-delay': +process.env.VERIFY_INTERVAL }
-        })
-      }
-
     }
   } catch (err) {
     console.error('[Block] ' + err.toString())

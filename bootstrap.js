@@ -4,7 +4,7 @@
 'use strict'
 
 // Setup scheduler
-const cron = require('node-cron');
+const scheduler = require('node-cron');
 
 // Setup logger
 require('console-stamp')(console, {
@@ -24,28 +24,27 @@ require('./utils/db/schema');
   try {
     
     // Let's create a bunch of queues shall we?
-    const Blocks = await require('./libs/rabbitmq')('blocks')
-    const Transactions = await require('./libs/rabbitmq')('transactions')
-    const Verifier = await require('./libs/rabbitmq')('verify')
-    const Addresses = await require('./libs/rabbitmq')('addresses')
+    const storeBlock = await require('./libs/rabbitmq')('storeBlock')
+    const processBlock = await require('./libs/rabbitmq')('processBlock')
+    const verifyBlock = await require('./libs/rabbitmq')('verifyBlock')
+    const processAddress = await require('./libs/rabbitmq')('processAddress')
 
-    // Setup delayed message support for the verify queue. 
-    Verifier.assertExchange('delayed', 'x-delayed-message', {
+    // Setup delayed message support for the `verifyBlock` queue. 
+    verifyBlock.assertExchange('delayed', 'x-delayed-message', {
       autoDelete: false,
       durable: true,
       passive: true,
       arguments: { 'x-delayed-type': 'direct' }
     })
   
-    // Bind 'verify' queue to 'delayed' exchange via a route named 'block'.
-    Verifier.bindQueue('verify', 'delayed', 'block')
+    // Bind `verifyBlock` queue to 'delayed' exchange via a route named 'block'.
+    verifyBlock.bindQueue('verifyBlock', 'delayed', 'block')
 
 
-    // Setup a cron job that will loop on a defined interval. COLLECTOR_INTERVAL
-    // is defined in ms and converted to seconds here.
-
-    const Collector = cron.schedule('*/' + (+process.env.COLLECTOR_INTERVAL / 1000) + ' * * * * *', () =>  {
-      require('./scripts/collect')(Blocks, Verifier, Transactions, Addresses)
+    // Schedule a job that will loop on a specified interval set with COLLECTOR_INTERVAL
+    // COLLECTOR_INTERVAL is defined in ms so lets convert it to seconds.
+    const Collector = scheduler.schedule('*/' + (+process.env.COLLECTOR_INTERVAL / 1000) + ' * * * * *', () =>  {
+      require('./scripts/collect')(storeBlock)
     })
 
 
@@ -53,10 +52,10 @@ require('./utils/db/schema');
     Collector.start()
 
     // Yes! Consume!
-    require('./workers/block')(Blocks)
-    require('./workers/transaction')(Transactions, Addresses)
-    require('./workers/address')(Addresses)
-    require('./workers/verify')(Verifier, Collector, Blocks, Transactions, Addresses)
+    require('./workers/block/store')(storeBlock, processBlock)
+    require('./workers/block/process')(processBlock, verifyBlock, processAddress)
+    require('./workers/block/verify')(verifyBlock, Collector, storeBlock, processBlock, processAddress)
+    require('./workers/address/process')(processAddress)
 
   }
   catch(err) {

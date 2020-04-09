@@ -4,24 +4,30 @@
 
 'use strict'
 
-const promisify = require('../libs').promisify
-const db = require('../libs').knex
+const promisify = require('../../libs').promisify
+const db = require('../../libs').knex
 const axios = require('axios')
 
-// Processes all addreses it receives from the producer
-// collectBlocks.js - If the address is new, it gets added.
+// Processes all addresses it receives from the producer
+// collectstoreBlock.js - If the address is new, it gets added.
 // If the address exists, it gets updated.
 
-module.exports = async function (Addresses) {
+module.exports = async function (processAddress) {
   try {
 
     // 1:1
     // Consume one message at a time for optimum speed,
     // stability and data integrity.
-    Addresses.prefetch(1)
 
-    if(+process.env.UPDATE_ADDRESSES) { 
-      Addresses.consume('addresses', processAddress)
+    processAddress.prefetch(1)
+
+    // If enabled, update generator balance.
+    // Useful to disable when wanting a quick
+    // resync from scratch.
+
+    if(+process.env.UPDATE_ADDRESS) { 
+
+      processAddress.consume('processAddress', address)
     }
 
   }
@@ -30,7 +36,7 @@ module.exports = async function (Addresses) {
     console.error('[Address]: ' + err.toString())
   }
 
-  async function processAddress (msg) {
+  async function address (msg) {
 
     // Parse message content
     const address = JSON.parse(msg.content.toString())
@@ -47,9 +53,10 @@ module.exports = async function (Addresses) {
 
       // Check if address exist
       const checkAddress = await txn('addresses')
-        .count('* as count')
+        .count('address as count')
         .where('address', address)
 
+  
       let message
 
       if (checkAddress[0].count === 0) {
@@ -83,8 +90,8 @@ module.exports = async function (Addresses) {
       // Commit db transaction
       await txn.commit()
 
-      // Aknowledge message
-      await Addresses.ack(msg)
+      // Acknowledge message
+      await processAddress.ack(msg)
 
       console.log('[Address] [' + address + '] ' + message)
     } catch (err) {
@@ -93,7 +100,7 @@ module.exports = async function (Addresses) {
       await txn.rollback()
 
       // Send message back to the queue for a retry
-      await Addresses.nack(msg)
+      await processAddress.nack(msg)
 
       console.error('[Address] [' + address + '] ' + err.toString())
     }

@@ -4,8 +4,8 @@
 
 'use strict'
 
-const promisify = require('../libs').promisify
-const db = require('../libs').knex
+const promisify = require('../../libs').promisify
+const db = require('../../libs').knex
 const axios = require('axios')
 const UUID = require('uuid/v4')
 
@@ -14,12 +14,13 @@ const UUID = require('uuid/v4')
 // This bebe is needed incase we are dealing with chain divergence
 // which is caused by hash collision.
 
-const rewindChain = require('../scripts/rewind');
+const rewindChain = require('../../scripts/rewind');
 
-// Verify collected blocks and transactions against hooliganism
-// and other shenanigans.
+// Verify processed blocks and transactions against hooliganism
+// and other shenanigans. Consumes blocks from the `verifyBlock`
+// queue.
 
-module.exports = async function (Verifier, Collector, Blocks, Transactions, Addresses) {
+module.exports = async function (verifyBlock, Collector, storeBlock, processBlock, processAddress) {
  
   try {
 
@@ -27,15 +28,15 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
     // Consume one message at a time for optimum speed,
     // stability and data integrity.
 
-    Verifier.prefetch(1)
-    Verifier.consume('verify', confirmBlock)
+    verifyBlock.prefetch(1)
+    verifyBlock.consume('verifyBlock', verify)
   }
   catch (err) {
 
     console.error('[Block]: ' + err.toString())
   }
 
-  async function confirmBlock (msg) {
+  async function verify (msg) {
 
     // Parse message content
     const block = JSON.parse(msg.content.toString())
@@ -47,7 +48,7 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
 
       // We may need this for later, ignore for now.
 
-      let rewind = false
+      // let rewind = false
 
       // Let's check if the signature of the collected block still
       // matches with the currently known signature to the network.
@@ -58,8 +59,9 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
         timeout: +process.env.TIMEOUT
       })
 
+
       // It's a match!
-      if (check.data.signature === block.signature) {
+      if (check.data.signature !== block.signature) {
 
         // Mark block as verified.
         await txn('blocks').update({
@@ -82,17 +84,17 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
 
 
         // We'll need this for later
-        rewind = true
+        // rewind = true
 
         // Stop the collector
         await Collector.stop()
 
         // purge all queues
-        await Addresses.purgeQueue('addresses')
-        await Blocks.purgeQueue('blocks')
-        await Transactions.purgeQueue('transactions')
-        await Verifier.purgeQueue('verify')
- 
+        await storeBlock.purgeQueue('storeBlock')
+        await processBlock.purgeQueue('processBlock')
+        await verifyBlock.purgeQueue('verifyBlock')
+        await processAddress.purgeQueue('processAddress')
+
         // Rewind the chain to n-1 mismatched block. 
         await rewindChain(+block.height - 1)
 
@@ -100,45 +102,11 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
         await Collector.start()
       }
 
-      // Ignores this if a rewind has been activated due to a block signature mismatch
-      if(!rewind) {
-
-        // While we are at it, lets also check if the transaction count and
-        // block size of the collected block still matches.
-        if((check.data.transactionCount === block.transactionCount) && (check.data.blocksize === block.blocksize)) {
-
-          // Update all transactions verified statuses belonging to the block.
-          await txn('transactions').update({
-            verified: true
-          })
-          .where('block', block.height)
-
-          console.log('[Block] [' + block.height + '] ' + check.data.transactionCount + ' transactions(s) verified')
-
-        }
-        else {
-
-          // Add any transactions that weren't added yet in case the block
-          // was freshly forged during the collecting process. This can
-          // happen because transactions are added by a different 
-          // producer than the one who forges the block.
-
-          // We achieve this by simply sending the newly checked block data to 
-          // the transaction queue which ignores duplicates.
-
-          console.warn('[Block] [' + block.height + '] ' + (+check.data.transactionCount - +block.transactionCount) + ' transactions(s) missing on verfication')
-
-          await Transactions.sendToQueue('transactions', new Buffer(JSON.stringify(check.data)), {
-            correlationId: UUID()
-          })
-        }
-      }
-
       // Commit db transaction
       txn.commit()
 
       // Acknowledge message
-      await Verifier.ack(msg)
+      await verifyBlock.ack(msg)
 
     }
     catch (err) {
@@ -147,7 +115,7 @@ module.exports = async function (Verifier, Collector, Blocks, Transactions, Addr
       await txn.rollback()
 
       // Send message back to the queue for a retry
-      await Verifier.nack(msg)
+      await verifyBlock.nack(msg)
 
       console.error('[Block] [' + block.height + '] ' + err.toString())
     }
