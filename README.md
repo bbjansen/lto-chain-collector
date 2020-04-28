@@ -8,7 +8,7 @@
 - [RabbitMQ Delayed Message Exchange Plugin](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange)
 
 ## Architecture
-![Architecture]('/assets/architecture.png?raw=1')
+![Architecture](/assets/architecture.png?raw=true "Architecture")
 
 1. The block collector scrapes blocks from the public blockchain at a defined interval in batches of up to 99 blocks.
 2. The collected block(s) get queued where they get processed at a 1:1 ratio in chronological order.
