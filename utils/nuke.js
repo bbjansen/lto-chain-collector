@@ -20,14 +20,14 @@ const db = require('../libs').knex;
 (async () => {
     try {
       
-        const storeBlock = await require('../libs/rabbitmq')('storeBlock')
-        const processBlock = await require('../libs/rabbitmq')('processBlock')
+        const keyBlock = await require('../libs/rabbitmq')('keyBlock')
+        const microBlock = await require('../libs/rabbitmq')('microBlock')
         const verifyBlock = await require('../libs/rabbitmq')('verifyBlock')
         const processAddress = await require('../libs/rabbitmq')('processAddress')
 
         // Delete Queues
-        await storeBlock.deleteQueue('storeBlock')
-        await processBlock.deleteQueue('processBlock')
+        await keyBlock.deleteQueue('keyBlock')
+        await microBlock.deleteQueue('microBlock')
         await verifyBlock.deleteQueue('verifyBlock')
         await processAddress.deleteQueue('processAddress')
 
@@ -42,8 +42,8 @@ const db = require('../libs').knex;
         await db.schema.dropTableIfExists('addresses')
 
         // Setup queues
-        await storeBlock.assertQueue('storeBlock')
-        await processBlock.assertQueue('processBlock')
+        await keyBlock.assertQueue('keyBlock')
+        await microBlock.assertQueue('microBlock')
         await verifyBlock.assertQueue('verifyBlock')
         await processAddress.assertQueue('processAddress')
 

@@ -9,7 +9,7 @@ const db = require('../../libs').knex
 const axios = require('axios')
 
 // Processes all addresses it receives from the producer
-// collectstoreBlock.js - If the address is new, it gets added.
+// collectkeyBlock.js - If the address is new, it gets added.
 // If the address exists, it gets updated.
 
 module.exports = async function (processAddress) {
@@ -47,7 +47,7 @@ module.exports = async function (processAddress) {
     try {
 
       // Get Balance
-      const balances = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/addresses/balance/details/' + address, {
+      const balances = await axios.get('https://' + process.env.NODE_ADDRESS + '/addresses/balance/details/' + address, {
         timeout: +process.env.TIMEOUT
       })
 
@@ -68,7 +68,7 @@ module.exports = async function (processAddress) {
           generating: balances.data.generating / +process.env.ATOMIC_NUMBER,
           available: balances.data.available / +process.env.ATOMIC_NUMBER,
           effective: balances.data.effective / +process.env.ATOMIC_NUMBER,
-          created:  new Date().getTime(),
+          created:  new Date().getTime()
         })
       
       

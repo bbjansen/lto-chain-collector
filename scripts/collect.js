@@ -9,10 +9,10 @@ const axios = require('axios')
 const UUID = require('uuid/v4')
 
 // This is the start of the workflow. The Collector fetches blocks from the
-// public chain in increments of 100 and adds each block to the `storeBlock`
+// public chain in increments of 100 and adds each block to the `keyBlock`
 // queue for the next workflow.
 
-module.exports = async function (storeBlock) {
+module.exports = async function (keyBlock) {
   try {
     
     let lastIndex = 0
@@ -20,7 +20,7 @@ module.exports = async function (storeBlock) {
     let blockCount = 0
 
     // Let's grab the last block announced by the network 
-    lastIndex = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/height', {
+    lastIndex = await axios.get('https://' + process.env.NODE_ADDRESS + '/blocks/height', {
       timeout: +process.env.TIMEOUT
     })
 
@@ -72,14 +72,14 @@ module.exports = async function (storeBlock) {
     const endIndex = (blockIndex + blockCount)
 
     // Fetch the next batch of blocks
-    const blocks = await axios.get('https://' + (process.env.NODE_ADDRESS || process.env.NODE_IP + ':' + process.env.NODE_PORT) + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
+    const blocks = await axios.get('https://' + process.env.NODE_ADDRESS + '/blocks/seq/' + (blockIndex + 1) + '/' + endIndex, {
       timeout: +process.env.TIMEOUT
     })
 
     for (let block of blocks.data) {
       
-      // Add each block to the `storeBlock` queue where they will be recorded in the database
-      await storeBlock.sendToQueue('storeBlock', new Buffer(JSON.stringify(block)), {
+      // Add each block to the `keyBlock` queue where they will be recorded in the database
+      await keyBlock.sendToQueue('keyBlock', new Buffer(JSON.stringify(block)), {
         correlationId: UUID(),
       })
     }

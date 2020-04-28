@@ -1,7 +1,7 @@
 {
   "name": "lto-chain-collector",
   "version": "0.4.0",
-  "description": "Caches the entire blockchain of the LTO Network into a SQL DB, among with extra information.",
+  "description": "Maintain an entire copy of the LTO public blockchain plus more in an off-chain database.",
   "main": "app.js",
   "scripts": {
     "start": "node ./bin/www",
