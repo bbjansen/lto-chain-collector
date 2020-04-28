@@ -27,6 +27,8 @@
 - set `VERIFY_CACHE=0`
 - set `UPDATE_ADDRESS=0` if you are not interested in address balances and creation dates
 - `COLLECTOR_INTERVAL` can be lowered at the start, but not recommended after block 50,000
+
+
 Consider using pm2 to keep the collector running and enabling RabbitMQ Dashboard to have an overview on the queues.
 
 ## .env example
