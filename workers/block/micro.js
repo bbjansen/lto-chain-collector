@@ -138,7 +138,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
                 //    await processAddress.sendToQueue('processAddress', new Buffer(JSON.stringify(transfer.recipient)), {
                 //    correlationId: UUID()
                 //  })
-                }
+                // }
               }
             }
 
