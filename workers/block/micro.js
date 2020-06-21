@@ -47,9 +47,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
       })
 
       block = block.data
-
-      //console.log(block)
-
+      
       // Update the block with the latest metadata
 
         await txn('blocks').update({
@@ -136,10 +134,10 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
                 // Useful to disable when wanting a quick
                 // resync from scratch.
 
-                if(+process.env.UPDATE_ADDRESS) {
-                    await processAddress.sendToQueue('processAddress', new Buffer(JSON.stringify(transfer.recipient)), {
-                    correlationId: UUID()
-                  })
+                // if(+process.env.UPDATE_ADDRESS) {
+                //    await processAddress.sendToQueue('processAddress', new Buffer(JSON.stringify(transfer.recipient)), {
+                //    correlationId: UUID()
+                //  })
                 }
               }
             }
