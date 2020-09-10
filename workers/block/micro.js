@@ -66,7 +66,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
       if (+process.env.UPDATE_ADDRESS) {
         await processAddress.sendToQueue(
           "processAddress",
-          new Buffer(JSON.stringify(block.generator)),
+          Buffer.from(JSON.stringify(block.generator)),
           {
             correlationId: UUID(),
           }
@@ -136,7 +136,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
                 if (+process.env.UPDATE_ADDRESS) {
                   await processAddress.sendToQueue(
                     "processAddress",
-                    new Buffer(JSON.stringify(transfer.recipient)),
+                    Buffer.from(JSON.stringify(transfer.recipient)),
                     {
                       correlationId: UUID(),
                     }
@@ -168,7 +168,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
                 if (address) {
                   await processAddress.sendToQueue(
                     "processAddress",
-                    new Buffer(JSON.stringify(address)),
+                    Buffer.from(JSON.stringify(address)),
                     {
                       correlationId: UUID(),
                     }
@@ -206,7 +206,7 @@ module.exports = async function (microBlock, verifyBlock, processAddress) {
         await verifyBlock.publish(
           "delayed",
           "block",
-          new Buffer(JSON.stringify(block)),
+          Buffer.from(JSON.stringify(block)),
           {
             correlationId: UUID(),
             headers: { "x-delay": +process.env.VERIFY_INTERVAL },
